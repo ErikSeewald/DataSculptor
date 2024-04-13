@@ -2,30 +2,23 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::Error;
 
-use crate::data::data_containers::DataDayUnparsed;
+use crate::data::data_containers::DayDataUnparsed;
 
-type FlexibleData = HashMap<String, String>;
-type DateDataMap = HashMap<String, FlexibleData>;
-
-pub fn load_data_str(data_str: &str) -> Result<Vec<DataDayUnparsed>, serde_json::Error>
+pub fn load_data_str(data_str: &str) -> Result<Vec<DayDataUnparsed>, serde_json::Error>
 {
-    let data_map: DateDataMap = serde_json::from_str(&data_str)?;
+    let data_map: HashMap<String, HashMap<String, String>> = serde_json::from_str(&data_str)?;
 
-    let mut data_days: Vec<DataDayUnparsed> = Vec::new();
-    for entry in data_map
+    let mut days: Vec<DayDataUnparsed> = Vec::new();
+    for (date, entries) in data_map
     {
-        data_days.push(DataDayUnparsed::from(entry));
+        days.push(DayDataUnparsed {date, entries });
     }
-    Ok(data_days)
+    Ok(days)
 }
 
-pub fn load_data_json(file_path: &str) -> Result<Vec<DataDayUnparsed>, Error>
+pub fn load_data_file(file_path: &str) -> Result<Vec<DayDataUnparsed>, Error>
 {
-    let mut data_str: String = fs::read_to_string(file_path)?;
-
-    data_str.replace_range(0..1,"{");
-    data_str.replace_range(data_str.len()-1..data_str.len(),"}");
-
+    let data_str: String = fs::read_to_string(file_path)?;
     match load_data_str(data_str.as_str())
     {
         Ok(data) => {Ok(data)}
