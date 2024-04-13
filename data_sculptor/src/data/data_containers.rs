@@ -57,7 +57,7 @@ pub fn parse(unparsed: DayDataUnparsed) -> Result<DayDataParsed, ParseError>
 
     match NaiveDate::parse_from_str(&*unparsed.date, date_format) {
         Ok(date) => naive_date = date,
-        Err(_) => return Err(ParseError::InvalidDate(unparsed.date.clone()))
+        Err(_) => return Err(ParseError::InvalidDate(unparsed.date))
     }
 
     // ENTRIES

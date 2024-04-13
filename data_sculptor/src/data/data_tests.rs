@@ -8,7 +8,7 @@ mod tests
 
         mod parse_and_sort_tests
         {
-            use crate::data::data_containers::{DayDataParsed, DayDataUnparsed, parse_and_sort_by_date};
+            use crate::data::data_containers::{DayDataUnparsed, parse_and_sort_by_date};
 
             #[test]
             fn test_empty_vec()
