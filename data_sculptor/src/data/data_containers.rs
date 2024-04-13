@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use chrono::NaiveDate;
+use std::cmp::Eq;
 
 // DAY DATA UNPARSED
 pub struct DayDataUnparsed
@@ -10,12 +11,13 @@ pub struct DayDataUnparsed
 }
 
 // DAY DATA PARSED
-struct DayDataParsed
+pub struct DayDataParsed
 {
     date: NaiveDate,
     entries: HashMap<EntryKey, EntryValue>
 }
 
+#[derive(Eq, Hash, PartialEq)]
 struct EntryKey
 {
     title: String
@@ -40,51 +42,48 @@ impl Display for ParseError
     {
         match self
         {
-            ParseError::InvalidDate(date) => {write!(f, "The date {} is unparsable!", date)}
+            ParseError::InvalidDate(date) => {write!(f, "The date {} is unparseable!", date)}
         }
     }
 }
 
 impl std::error::Error for ParseError {}
 
-
-impl From<&DayDataUnparsed> for DayDataParsed
+pub fn parse(unparsed: DayDataUnparsed) -> Result<DayDataParsed, ParseError>
 {
-    fn from(value: &DayDataUnparsed) -> Result<Self, ParseError>
-    {
-        // DATE
-        let date_format = "%Y-%m-%d";
-        let mut naive_date: NaiveDate;
+    // DATE
+    let date_format = "%Y-%m-%d";
+    let naive_date: NaiveDate;
 
-        match NaiveDate::parse_from_str(&*value.date, date_format) {
-            Ok(date) => naive_date = date,
-            Err(e) => return Err(ParseError::InvalidDate(value.date.clone()))
-        }
-
-        // ENTRIES
-        let mut entries: HashMap<EntryKey, EntryValue> = HashMap::new();
-        for (key, entry_value) in value.entries
-        {
-            entries.insert(EntryKey {title: key}, EntryValue{string_value: entry_value});
-        }
-
-        // CONSTRUCT
-        Ok(Self
-        {
-            date: naive_date,
-            entries
-        })
+    match NaiveDate::parse_from_str(&*unparsed.date, date_format) {
+        Ok(date) => naive_date = date,
+        Err(_) => return Err(ParseError::InvalidDate(unparsed.date.clone()))
     }
+
+    // ENTRIES
+    let mut entries: HashMap<EntryKey, EntryValue> = HashMap::new();
+    for (key, value) in unparsed.entries
+    {
+        entries.insert(EntryKey {title: key }, EntryValue{string_value: value});
+    }
+
+    // CONSTRUCT
+    Ok(DayDataParsed
+    {
+        date: naive_date,
+        entries
+    })
 }
 
-pub fn parse_and_sort_by_date(unparsed_days: &Vec<DayDataUnparsed>) -> Vec<DayDataParsed>
+pub fn parse_and_sort_by_date(unparsed_days: Vec<DayDataUnparsed>)
+    -> Result<Vec<DayDataParsed>, ParseError>
 {
     let mut parsed_days: Vec<DayDataParsed> = Vec::new();
     for day in unparsed_days
     {
-        parsed_days.push(DayDataParsed::from(day));
+        parsed_days.push(parse(day)?);
     }
     parsed_days.sort_by(|a, b| a.date.cmp(&b.date));
 
-    return parsed_days;
+    Ok(parsed_days)
 }
