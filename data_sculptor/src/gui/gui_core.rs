@@ -4,7 +4,8 @@ use iced::{Application, Command, Element, Length, Settings, Theme};
 use std::sync::{Arc, Mutex};
 use crate::core::data_manager::DataManager;
 
-pub fn init(data_manager: Arc<Mutex<DataManager>>) -> iced::Result {
+pub fn init(data_manager: Arc<Mutex<DataManager>>) -> iced::Result 
+{
     MainGUI::run(Settings::with_flags(data_manager))
 }
 
