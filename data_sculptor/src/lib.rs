@@ -1,3 +1,3 @@
 pub mod gui;
-pub mod data;
+pub mod core;
 pub mod file_io;

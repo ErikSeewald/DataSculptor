@@ -3,7 +3,7 @@ mod parse_tests
     use std::collections::HashMap;
     use std::hash::Hash;
     use chrono::NaiveDate;
-    use data_sculptor::data::data_containers::{DATE_FORMAT, DayDataParsed, DayDataUnparsed, EntryKey, EntryValue, parse, ParseError};
+    use data_sculptor::core::data_containers::{DATE_FORMAT, DayDataParsed, DayDataUnparsed, EntryKey, EntryValue, parse, ParseError};
 
     #[test]
     fn test_parse_invalid_date()
@@ -45,7 +45,7 @@ mod parse_tests
 mod parse_and_sort_tests
 {
     use std::collections::HashMap;
-    use data_sculptor::data::data_containers::{DayDataParsed, DayDataUnparsed, parse, parse_and_sort_by_date, ParseError};
+    use data_sculptor::core::data_containers::{DayDataParsed, DayDataUnparsed, parse, parse_and_sort_by_date, ParseError};
 
     #[test]
     fn test_empty_vec()
