@@ -15,7 +15,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Build
       run: cargo build --verbose
+      working-directory: data_sculptor
+
     - name: Run tests
-      run: cargo test --verbose --package data_sculptor
+      run: cargo test --verbose
+      working-directory: data_sculptor
