@@ -1,7 +1,9 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Formatter};
 use chrono::NaiveDate;
 use std::cmp::Eq;
+
+pub const DATE_FORMAT: &str =  "%Y-%m-%d";
 
 // DAY DATA UNPARSED
 pub struct DayDataUnparsed
@@ -11,29 +13,32 @@ pub struct DayDataUnparsed
 }
 
 // DAY DATA PARSED
+#[derive(Debug, PartialEq)]
 pub struct DayDataParsed
 {
-    date: NaiveDate,
-    entries: HashMap<EntryKey, EntryValue>
+    pub date: NaiveDate,
+    pub entries: HashMap<EntryKey, EntryValue>
 }
 
-#[derive(Eq, Hash, PartialEq)]
-struct EntryKey
+#[derive(Eq, Hash, PartialEq, Debug)]
+pub struct EntryKey
 {
-    title: String
+    pub title: String
 }
 
-struct EntryValue
+#[derive(PartialEq, Debug)]
+pub struct EntryValue
 {
-    string_value: String
+    pub string_value: String
 }
 
 
 // PARSING
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub enum ParseError
 {
-    InvalidDate(String)
+    InvalidDate(String),
+    DuplicateDate(String)
 }
 
 impl Display for ParseError
@@ -43,19 +48,18 @@ impl Display for ParseError
         match self
         {
             ParseError::InvalidDate(date) => {write!(f, "The date {} is unparseable!", date)}
+            ParseError::DuplicateDate(date) => {write!(f, "The date {} is contained multiple times!", date)}
         }
     }
 }
-
 impl std::error::Error for ParseError {}
 
 pub fn parse(unparsed: DayDataUnparsed) -> Result<DayDataParsed, ParseError>
 {
     // DATE
-    let date_format = "%Y-%m-%d";
     let naive_date: NaiveDate;
 
-    match NaiveDate::parse_from_str(&*unparsed.date, date_format) {
+    match NaiveDate::parse_from_str(&*unparsed.date, DATE_FORMAT) {
         Ok(date) => naive_date = date,
         Err(_) => return Err(ParseError::InvalidDate(unparsed.date))
     }
@@ -79,8 +83,14 @@ pub fn parse_and_sort_by_date(unparsed_days: Vec<DayDataUnparsed>)
     -> Result<Vec<DayDataParsed>, ParseError>
 {
     let mut parsed_days: Vec<DayDataParsed> = Vec::new();
+    let mut added_dates: HashSet<String> = HashSet::new();
     for day in unparsed_days
     {
+        // Disallow duplicate dates
+        if !added_dates.insert(day.date.clone())
+        {
+            return Err(ParseError::DuplicateDate(day.date));
+        }
         parsed_days.push(parse(day)?);
     }
     parsed_days.sort_by(|a, b| a.date.cmp(&b.date));

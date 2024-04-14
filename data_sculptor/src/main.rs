@@ -1,6 +1,4 @@
-mod gui;
-mod data;
-mod file_io;
+use data_sculptor::gui;
 
 fn main()
 {
