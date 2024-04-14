@@ -21,7 +21,7 @@ A json file of the type:\
   {\
       "some key": "some value",\
       "another key": "another value"\
-      "yet another key": "**As you can see, different date entries can have different sets of keys.**",\
+      "yet another key": "**Different date entries can have different sets of keys.**",\
       [...]\
   },
 
