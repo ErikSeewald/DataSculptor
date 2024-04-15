@@ -2,6 +2,7 @@ use iced::widget::{button, Column, Container, Row, scrollable, Scrollable, Space
 use iced::{Application, Command, Element, Length, Settings, Theme};
 
 use std::sync::{Arc, Mutex};
+use iced::font::Style;
 use crate::core::data_manager::DataManager;
 
 pub fn init(data_manager: Arc<Mutex<DataManager>>) -> iced::Result 
@@ -11,7 +12,9 @@ pub fn init(data_manager: Arc<Mutex<DataManager>>) -> iced::Result
 
 struct MainGUI
 {
-    data_manager: Arc<Mutex<DataManager>>
+    data_manager: Arc<Mutex<DataManager>>,
+    loaded_valid_file: bool,
+    load_error_msg: String
 }
 
 #[derive(Debug, Clone)]
@@ -32,7 +35,7 @@ impl Application for MainGUI
     {
         (
             Self
-            {data_manager: flags},
+            {data_manager: flags,  loaded_valid_file: true, load_error_msg: String::new()},
             Command::none(),
         )
     }
@@ -57,7 +60,9 @@ impl Application for MainGUI
 
             GUIMessage::FileSelected(path) =>
             {
+                (self.loaded_valid_file, self.load_error_msg) =
                 self.data_manager.lock().unwrap().load_data(path.as_str());
+
                 Command::none()
             }
         }
@@ -66,19 +71,31 @@ impl Application for MainGUI
     fn view(&self) -> Element<Self::Message>
     {
         let mut column: Column<Self::Message> = Column::new().spacing(20);
-        for data in &self.data_manager.lock().unwrap().data
+
+        if !self.loaded_valid_file
         {
-            let date_text = Text::new(data.date.date_string.clone()).size(20);
-            column = column.push(date_text);
+            column = column.push(Text::new("Error while loading file:").size(25));
+            let error_text = Text::new(self.load_error_msg.clone()).size(15);
+            column = column.push(error_text);
+        }
 
-            let mut entries_column = Column::new().spacing(10);
-            for (key, value) in &data.entries
+        else
+        {
+            let data_vec = &self.data_manager.lock().unwrap().data;
+            for data in data_vec
             {
-                let entry_text = Text::new(format!("    {}: {}", key.title, value.string_value));
-                entries_column = entries_column.push(entry_text);
-            }
+                let date_text = Text::new(data.date.date_string.clone()).size(20);
+                column = column.push(date_text);
 
-            column = column.push(entries_column);
+                let mut entries_column = Column::new().spacing(10);
+                for (key, value) in &data.entries
+                {
+                    let entry_text = Text::new(format!("    {}: {}", key.title, value.string_value));
+                    entries_column = entries_column.push(entry_text);
+                }
+
+                column = column.push(entries_column);
+            }
         }
 
         let scroll = Scrollable::new(Container::new(column).width(Length::Fill).center_x());

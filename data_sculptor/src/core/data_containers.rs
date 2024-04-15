@@ -54,8 +54,8 @@ impl Display for ParseError
     {
         match self
         {
-            ParseError::InvalidDate(date) => {write!(f, "The date {} is unparseable!", date)}
-            ParseError::DuplicateDate(date) => {write!(f, "The date {} is contained multiple times!", date)}
+            ParseError::InvalidDate(date) => {write!(f, "The date '{}' is unparseable!", date)}
+            ParseError::DuplicateDate(date) => {write!(f, "The date '{}' is contained multiple times!", date)}
         }
     }
 }

@@ -8,25 +8,25 @@ pub struct DataManager
 
 impl DataManager
 {
-    pub fn load_data(&mut self, file_path: &str) -> bool
+    pub fn load_data(&mut self, file_path: &str) -> (bool, String)
     {
         let data_unparsed: Vec<DayDataUnparsed>;
         match json_handler::load_data_file(file_path)
         {
             Ok(data) => {data_unparsed = data;}
-            Err(_) => {return false;}
+            Err(e) => {return (false, e.to_string());}
         }
 
         let mut data_parsed: Vec<DayDataParsed>;
         match parse_and_sort_by_date(data_unparsed)
         {
             Ok(parsed) => {data_parsed = parsed;}
-            Err(_) => {return false;}
+            Err(e) => {return (false, e.to_string());}
         }
 
         self.data.clear();
         self.data.append(&mut data_parsed);
 
-        return true;
+        return (true, String::from("Loaded successfully"));
     }
 }
