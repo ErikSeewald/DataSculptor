@@ -1,4 +1,4 @@
-use iced::widget::{button, Column, Row, Space};
+use iced::widget::{button, Column, Container, Row, scrollable, Scrollable, Space, Text};
 use iced::{Application, Command, Element, Length, Settings, Theme};
 
 use std::sync::{Arc, Mutex};
@@ -65,21 +65,39 @@ impl Application for MainGUI
 
     fn view(&self) -> Element<Self::Message>
     {
-        Row::new()
+        let mut column: Column<Self::Message> = Column::new().spacing(20);
+        for data in &self.data_manager.lock().unwrap().data
+        {
+            let date_text = Text::new(data.date.date_string.clone()).size(20);
+            column = column.push(date_text);
+
+            let mut entries_column = Column::new().spacing(10);
+            for (key, value) in &data.entries
+            {
+                let entry_text = Text::new(format!("    {}: {}", key.title, value.string_value));
+                entries_column = entries_column.push(entry_text);
+            }
+
+            column = column.push(entries_column);
+        }
+
+        let scroll = Scrollable::new(Container::new(column).width(Length::Fill).center_x());
+
+        let top_row = Row::new()
             .push(Space::with_width(Length::FillPortion(3)))
             .push
             (
-                Column::new()
-                    .push(Space::with_height(Length::FillPortion(1)))
-                    .push
-                    (
-                        button("Load file")
-                            .on_press(GUIMessage::OpenFile)
-                            .padding(10)
-                    )
-                    .push(Space::with_height(Length::FillPortion(8)))
+                button("Load file")
+                    .on_press(GUIMessage::OpenFile)
+                    .padding(10)
             )
-            .push(Space::with_width(Length::FillPortion(3)))
+            .push(Space::with_width(Length::FillPortion(3)));
+
+        Column::new()
+            .spacing(10)
+            .push(Space::with_height(10))
+            .push(top_row)
+            .push(scroll)
             .into()
     }
 

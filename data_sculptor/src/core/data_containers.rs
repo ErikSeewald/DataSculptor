@@ -81,7 +81,7 @@ pub fn parse(unparsed: DayDataUnparsed) -> Result<DayDataParsed, ParseError>
     // CONSTRUCT
     Ok(DayDataParsed
     {
-        date: DateKey{ naive_date: naive_date, date_string: unparsed.date},
+        date: DateKey{ naive_date, date_string: unparsed.date},
         entries
     })
 }
