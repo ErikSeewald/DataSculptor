@@ -10,6 +10,8 @@ impl DataManager
 {
     pub fn load_data(&mut self, file_path: &str) -> (bool, String)
     {
+        self.data.clear();
+
         let data_unparsed: Vec<DayDataUnparsed>;
         match json_handler::load_data_file(file_path)
         {
@@ -24,7 +26,6 @@ impl DataManager
             Err(e) => {return (false, e.to_string());}
         }
 
-        self.data.clear();
         self.data.append(&mut data_parsed);
 
         return (true, String::from("Loaded successfully"));

@@ -1,27 +1,28 @@
-use iced::widget::{button, Column, Container, Row, scrollable, Scrollable, Space, Text};
-use iced::{Application, Command, Element, Length, Settings, Theme};
+use iced::widget::{button, Column, Space};
+use iced::{Application, Command, Element, Settings, Theme};
 
 use std::sync::{Arc, Mutex};
-use iced::font::Style;
 use crate::core::data_manager::DataManager;
+use crate::gui::{messages, list_display, gui_util};
 
 pub fn init(data_manager: Arc<Mutex<DataManager>>) -> iced::Result 
 {
     MainGUI::run(Settings::with_flags(data_manager))
 }
 
-struct MainGUI
+pub struct MainGUI
 {
     data_manager: Arc<Mutex<DataManager>>,
-    loaded_valid_file: bool,
-    load_error_msg: String
+    pub loaded_valid_file: bool,
+    pub load_error_msg: String,
+    pub loading_file: bool
 }
 
 #[derive(Debug, Clone)]
 pub enum GUIMessage
 {
     OpenFile,
-    FileSelected(String),
+    FileSelected(String)
 }
 
 impl Application for MainGUI
@@ -35,7 +36,12 @@ impl Application for MainGUI
     {
         (
             Self
-            {data_manager: flags,  loaded_valid_file: true, load_error_msg: String::new()},
+            {
+                data_manager: flags,
+                loaded_valid_file: true,
+                load_error_msg: String::new(),
+                loading_file: false
+            },
             Command::none(),
         )
     }
@@ -53,6 +59,8 @@ impl Application for MainGUI
 
                 if let Some(file_path) = path
                 {
+                    self.loading_file = true;
+                    self.loaded_valid_file = true; // set to true here, may change after parse
                     Command::perform(async move { file_path }, GUIMessage::FileSelected)
                 }
                 else {Command::none()}
@@ -63,6 +71,11 @@ impl Application for MainGUI
                 (self.loaded_valid_file, self.load_error_msg) =
                 self.data_manager.lock().unwrap().load_data(path.as_str());
 
+                if self.loaded_valid_file
+                {
+                    self.loading_file = false;
+                }
+
                 Command::none()
             }
         }
@@ -70,53 +83,25 @@ impl Application for MainGUI
 
     fn view(&self) -> Element<Self::Message>
     {
-        let mut column: Column<Self::Message> = Column::new().spacing(20);
-
-        if !self.loaded_valid_file
-        {
-            column = column.push(Text::new("Error while loading file:").size(25));
-            let error_text = Text::new(self.load_error_msg.clone()).size(15);
-            column = column.push(error_text);
-        }
-
-        else
-        {
-            let data_vec = &self.data_manager.lock().unwrap().data;
-            for data in data_vec
-            {
-                let date_text = Text::new(data.date.date_string.clone()).size(20);
-                column = column.push(date_text);
-
-                let mut entries_column = Column::new().spacing(10);
-                for (key, value) in &data.entries
-                {
-                    let entry_text = Text::new(format!("    {}: {}", key.title, value.string_value));
-                    entries_column = entries_column.push(entry_text);
-                }
-
-                column = column.push(entries_column);
-            }
-        }
-
-        let scroll = Scrollable::new(Container::new(column).width(Length::Fill).center_x());
-
-        let top_row = Row::new()
-            .push(Space::with_width(Length::FillPortion(3)))
-            .push
+        let top_row = gui_util::center_in_new_row
             (
                 button("Load file")
                     .on_press(GUIMessage::OpenFile)
                     .padding(10)
-            )
-            .push(Space::with_width(Length::FillPortion(3)));
+                    .into()
+            );
+
+        let msg_container = messages::build_message_container(&self);
+        let data_list_display = list_display::display_list(&self.data_manager);
 
         Column::new()
             .spacing(10)
             .push(Space::with_height(10))
             .push(top_row)
-            .push(scroll)
+            .push(msg_container)
+            .push(data_list_display)
             .into()
     }
 
-    fn theme(&self) -> Self::Theme {Theme::GruvboxDark}
+    fn theme(&self) -> Self::Theme {Theme::Dark}
 }
