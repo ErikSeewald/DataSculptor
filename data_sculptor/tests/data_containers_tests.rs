@@ -1,9 +1,8 @@
 mod parse_tests
 {
     use std::collections::HashMap;
-    use std::hash::Hash;
     use chrono::NaiveDate;
-    use data_sculptor::core::data_containers::{DATE_FORMAT, DayDataParsed, DayDataUnparsed, EntryKey, EntryValue, parse, ParseError};
+    use data_sculptor::core::data_containers::{DATE_FORMAT, DateKey, DayDataUnparsed, EntryKey, EntryValue, parse, ParseError};
 
     #[test]
     fn test_parse_invalid_date()
@@ -29,7 +28,10 @@ mod parse_tests
         let parse = parse(DayDataUnparsed{date: date.clone(), entries: entries.clone()});
 
         assert!(parse.is_ok());
-        assert_eq!(parse.as_ref().unwrap().date, NaiveDate::parse_from_str(&date, DATE_FORMAT).unwrap());
+        assert_eq!(parse.as_ref().unwrap().date,
+                   DateKey{
+                       naive_date: NaiveDate::parse_from_str(&date, DATE_FORMAT).unwrap(),
+                       date_string: date});
 
         let mut valid_entries: HashMap<EntryKey, EntryValue> = HashMap::new();
         valid_entries.insert(

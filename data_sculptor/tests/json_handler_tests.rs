@@ -1,4 +1,4 @@
-mod data__containers_tests;
+mod data_containers_tests;
 
 mod load_data_str_tests
 {

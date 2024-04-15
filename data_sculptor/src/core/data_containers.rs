@@ -16,8 +16,15 @@ pub struct DayDataUnparsed
 #[derive(Debug, PartialEq)]
 pub struct DayDataParsed
 {
-    pub date: NaiveDate,
+    pub date: DateKey,
     pub entries: HashMap<EntryKey, EntryValue>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct DateKey
+{
+    pub naive_date: NaiveDate,
+    pub date_string: String
 }
 
 #[derive(Eq, Hash, PartialEq, Debug)]
@@ -74,7 +81,7 @@ pub fn parse(unparsed: DayDataUnparsed) -> Result<DayDataParsed, ParseError>
     // CONSTRUCT
     Ok(DayDataParsed
     {
-        date: naive_date,
+        date: DateKey{ naive_date: naive_date, date_string: unparsed.date},
         entries
     })
 }
@@ -93,7 +100,7 @@ pub fn parse_and_sort_by_date(unparsed_days: Vec<DayDataUnparsed>)
         }
         parsed_days.push(parse(day)?);
     }
-    parsed_days.sort_by(|a, b| a.date.cmp(&b.date));
+    parsed_days.sort_by(|a, b| a.date.naive_date.cmp(&b.date.naive_date));
 
     Ok(parsed_days)
 }
