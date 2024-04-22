@@ -1,4 +1,4 @@
 pub mod gui_core;
-pub mod list_display;
-mod messages;
-mod gui_util;
+pub mod views;
+pub mod gui_util;
+pub mod gui_message;

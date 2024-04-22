@@ -1,6 +1,6 @@
 use iced::{Element, Length};
 use iced::widget::{Row, Space};
-use crate::gui::gui_core::GUIMessage;
+use crate::gui::gui_message::GUIMessage;
 
 pub fn center_in_new_row(element: Element<GUIMessage>) -> Element<GUIMessage>
 {

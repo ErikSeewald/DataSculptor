@@ -1,28 +1,30 @@
-use iced::widget::{button, Column, Space};
 use iced::{Application, Command, Element, Settings, Theme};
-
 use std::sync::{Arc, Mutex};
 use crate::core::data_manager::DataManager;
-use crate::gui::{messages, list_display, gui_util};
+use crate::gui::views::gui_view_type::GUIViewType;
+use crate::gui::views::list_load::list_load_view::ListLoadView;
+use crate::gui::gui_message::GUIMessage;
 
+//! This module is the core manager of the graphical user interface.
+//!
+//! It manages the iced application and, based on its current state,
+//! switches between displaying the different views of the 'views' module.
+
+/// Initializes the iced application using an [`Arc`] of the [`DataManager`] that is shared
+/// between all submodules of data_sculptor.
 pub fn init(data_manager: Arc<Mutex<DataManager>>) -> iced::Result 
 {
     MainGUI::run(Settings::with_flags(data_manager))
 }
-
+/// Struct implementing the iced application. Also holds the shared data_manager
+/// and all possible views as well as a [`GUIViewType`] enum to switch between them.
 pub struct MainGUI
 {
-    data_manager: Arc<Mutex<DataManager>>,
-    pub loaded_valid_file: bool,
-    pub load_error_msg: String,
-    pub loading_file: bool
-}
+    pub data_manager: Arc<Mutex<DataManager>>,
+    pub cur_view: GUIViewType,
 
-#[derive(Debug, Clone)]
-pub enum GUIMessage
-{
-    OpenFile,
-    FileSelected(String)
+    // VIEWS
+    pub list_load_view: ListLoadView
 }
 
 impl Application for MainGUI
@@ -32,75 +34,38 @@ impl Application for MainGUI
     type Theme = Theme;
     type Flags = Arc<Mutex<DataManager>>;
 
+    /// Construct the iced applications and build all the default views and default
+    /// to display one of them.
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>)
     {
-        (
-            Self
+        let instance = Self
             {
                 data_manager: flags,
-                loaded_valid_file: true,
-                load_error_msg: String::new(),
-                loading_file: false
-            },
-            Command::none(),
-        )
+                cur_view: GUIViewType::ListLoadView,
+
+                // VIEWS
+                list_load_view: ListLoadView::default()
+            };
+
+        return (instance, Command::none());
     }
 
     fn title(&self) -> String {String::from("Data Sculptor")}
 
     fn update(&mut self, message: Self::Message) -> Command<Self::Message>
     {
-        match message
+        match self.cur_view
         {
-            GUIMessage::OpenFile =>
-            {
-                let file = rfd::FileDialog::new().pick_file();
-                let path = file.map(|f| f.as_path().to_string_lossy().into_owned());
-
-                if let Some(file_path) = path
-                {
-                    self.loading_file = true;
-                    self.loaded_valid_file = true; // set to true here, may change after parse
-                    Command::perform(async move { file_path }, GUIMessage::FileSelected)
-                }
-                else {Command::none()}
-            }
-
-            GUIMessage::FileSelected(path) =>
-            {
-                (self.loaded_valid_file, self.load_error_msg) =
-                self.data_manager.lock().unwrap().load_data(path.as_str());
-
-                if self.loaded_valid_file
-                {
-                    self.loading_file = false;
-                }
-
-                Command::none()
-            }
+            GUIViewType::ListLoadView => {self.list_load_view.update(message, &self.data_manager)}
         }
     }
 
     fn view(&self) -> Element<Self::Message>
     {
-        let top_row = gui_util::center_in_new_row
-            (
-                button("Load file")
-                    .on_press(GUIMessage::OpenFile)
-                    .padding(10)
-                    .into()
-            );
-
-        let msg_container = messages::build_message_container(&self);
-        let data_list_display = list_display::display_list(&self.data_manager);
-
-        Column::new()
-            .spacing(10)
-            .push(Space::with_height(10))
-            .push(top_row)
-            .push(msg_container)
-            .push(data_list_display)
-            .into()
+        match self.cur_view
+        {
+            GUIViewType::ListLoadView => {self.list_load_view.view(&self.data_manager)}
+        }
     }
 
     fn theme(&self) -> Self::Theme {Theme::Dark}
