@@ -1,8 +1,12 @@
+//! Module handling the display of (error-) messages in the list load view.
+
 use iced::{Color, Element, Length};
 use iced::widget::{Column, Container, Text};
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::views::list_load::list_load_view::ListLoadView;
 
+/// Builds the message container with the correct error message based on the state
+/// of the given [`ListLoadView`].
 pub fn build_message_container(state: &ListLoadView) -> Element<GUIMessage>
 {
     let mut msg_column: Column<GUIMessage> = Column::new().spacing(20);

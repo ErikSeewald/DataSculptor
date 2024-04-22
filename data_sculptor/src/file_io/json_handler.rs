@@ -1,7 +1,8 @@
+//! Handles the loading of json files into a list of [`DayDataUnparsed`]
+
 use std::collections::HashMap;
 use std::fs;
 use std::io::Error;
-
 use crate::core::data_containers::DayDataUnparsed;
 
 pub fn load_data_str(data_str: &str) -> Result<Vec<DayDataUnparsed>, serde_json::Error>

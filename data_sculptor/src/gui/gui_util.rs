@@ -1,3 +1,5 @@
+//! Utility functions for the GUI of data_sculptor
+
 use iced::{Element, Length};
 use iced::widget::{Row, Space};
 use crate::gui::gui_message::GUIMessage;

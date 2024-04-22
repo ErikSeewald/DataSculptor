@@ -1,3 +1,5 @@
+//! Specifies the main data structures and handles parsing between them.
+
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Formatter};
 use chrono::NaiveDate;
@@ -5,14 +7,14 @@ use std::cmp::Eq;
 
 pub const DATE_FORMAT: &str =  "%Y-%m-%d";
 
-// DAY DATA UNPARSED
+/// Struct holding data for a single day unparsed as Strings.
 pub struct DayDataUnparsed
 {
     pub date: String,
     pub entries: HashMap<String, String>
 }
 
-// DAY DATA PARSED
+/// Struct holding data for a single day parsed into proper data structures.
 #[derive(Debug, PartialEq)]
 pub struct DayDataParsed
 {
@@ -20,6 +22,7 @@ pub struct DayDataParsed
     pub entries: HashMap<EntryKey, EntryValue>
 }
 
+/// Date struct that serves as the identifier for a [`DayDataParsed`] instance.
 #[derive(Debug, PartialEq)]
 pub struct DateKey
 {
@@ -27,12 +30,18 @@ pub struct DateKey
     pub date_string: String
 }
 
+/// Struct that serves as the identifier for a single [`EntryValue`].
+/// Usually a descriptive title.
 #[derive(Eq, Hash, PartialEq, Debug)]
 pub struct EntryKey
 {
     pub title: String
 }
 
+/// A single data entry under a single [`EntryKey`] of a single [`DayDataParsed`] instance.
+/// Can optionally hold additional parsed utility values outside its basic String value if
+/// that behavior has been implemented for data of the corresponding [`EntryKey`].
+/// These additional values can then be used to display and modify the data more dynamically.
 #[derive(PartialEq, Debug)]
 pub struct EntryValue
 {
@@ -41,6 +50,7 @@ pub struct EntryValue
 
 
 // PARSING
+/// Errors that can occur while parsing between the core data structures.
 #[derive(PartialEq, Debug)]
 pub enum ParseError
 {
@@ -54,12 +64,14 @@ impl Display for ParseError
     {
         match self
         {
-            ParseError::InvalidDate(date) => {write!(f, "The date '{}' is unparseable!", date)}
-            ParseError::DuplicateDate(date) => {write!(f, "The date '{}' is contained multiple times!", date)}
+            ParseError::InvalidDate(date) =>
+                {write!(f, "The date '{}' is unparseable!", date)}
+
+            ParseError::DuplicateDate(date) =>
+                {write!(f, "The date '{}' is contained multiple times!", date)}
         }
     }
 }
-impl std::error::Error for ParseError {}
 
 pub fn parse(unparsed: DayDataUnparsed) -> Result<DayDataParsed, ParseError>
 {

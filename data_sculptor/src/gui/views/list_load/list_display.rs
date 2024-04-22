@@ -1,17 +1,20 @@
+//! Module handling the display of the list of [`DayDataParsed`]
+
 use std::sync::{Arc, Mutex};
 use iced::{Color, Element, Length};
 use iced::widget::{Column, Container, Row, Scrollable, Space, Text};
 use crate::core::data_manager::DataManager;
 use crate::gui::gui_message::GUIMessage;
 
-pub fn display_list(list: &Arc<Mutex<DataManager>>) -> Element<GUIMessage>
+/// Displays the data in the given [`DataManager`] in a scrollable view.
+pub fn display_list(data_manager: &Arc<Mutex<DataManager>>) -> Element<GUIMessage>
 {
     let date_color = Color::new(0.4, 0.8, 0.5, 1.0);
     let value_color = Color::new(0.6, 0.8, 1.0, 1.0);
 
     let mut column: Column<GUIMessage> = Column::new().spacing(10);
 
-    for day in &list.lock().unwrap().data
+    for day in &data_manager.lock().unwrap().data
     {
         // DATE
         let date_text = Text::new(day.date.date_string.clone())
