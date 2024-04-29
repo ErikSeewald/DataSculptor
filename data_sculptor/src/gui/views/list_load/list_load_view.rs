@@ -2,7 +2,7 @@
 
 use std::sync::{Arc, Mutex};
 use iced::{Command, Element};
-use iced::widget::{button, Column, Space};
+use iced::widget::{button, Column, Space, Text, Row};
 use crate::core::data_manager::DataManager;
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::{gui_util};
@@ -73,7 +73,7 @@ impl ListLoadView
     // VIEW
     pub fn view<'a>(&'a self, data_manager: &'a Arc<Mutex<DataManager>>) -> Element<GUIMessage>
     {
-        let top_row = gui_util::center_in_new_row
+        let row1 = gui_util::center_in_new_row
             (
                 button("Select file")
                     .on_press(GUIMessage::SelectFile)
@@ -81,13 +81,36 @@ impl ListLoadView
                     .into()
             );
 
+        //FILTERS
+        let row2: Element<GUIMessage> = Row::new()
+            .push(Text::new("Filters:"))
+            .push
+            (
+                button("Date")
+                    .on_press(GUIMessage::SelectFile)
+                    .padding(10)
+            )
+            .push
+            (
+                button("Key")
+                    .on_press(GUIMessage::SelectFile)
+                    .padding(10)
+            )
+            .push
+            (
+                button("Value")
+                    .on_press(GUIMessage::SelectFile)
+                    .padding(10)
+            ).spacing(20).into();
+
         let msg_container = messages::build_message_container(&self);
         let data_list_display = list_display::display_list(data_manager);
 
         Column::new()
             .spacing(10)
             .push(Space::with_height(10))
-            .push(top_row)
+            .push(row1)
+            .push(row2)
             .push(msg_container)
             .push(data_list_display)
             .into()
