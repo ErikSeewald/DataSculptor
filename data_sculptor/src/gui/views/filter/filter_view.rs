@@ -1,10 +1,11 @@
 //! Module implementing the [`FilterView`]
 
-use iced::{Command, Element, Alignment};
+use iced::{Command, Element, Alignment, theme};
 use iced::widget::{Button, Column, Row, TextInput};
 use crate::gui::gui_message::GUIMessage;
 use crate::core::filter::{FilterType, Filter};
 use crate::gui::views::list_load::list_load_view::ListLoadView;
+use crate::gui::gui_theme;
 
 /// View for displaying and setting filters for the data list
 pub struct FilterView
@@ -48,11 +49,13 @@ impl FilterView
 
         let button = Button::new("Submit")
             .on_press(GUIMessage::SelectFile)
-            .padding(10);
+            .padding(10)
+            .style(theme::Button::custom(gui_theme::ButtonTheme));
 
         let return_button = Button::new("Return")
             .on_press(GUIMessage::ReturnToView(ListLoadView::view_title()))
-            .padding(10);
+            .padding(10)
+            .style(theme::Button::custom(gui_theme::ButtonTheme));
 
         Column::new()
             .spacing(20)

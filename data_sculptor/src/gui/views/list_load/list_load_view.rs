@@ -2,11 +2,12 @@
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use iced::{Background, Color, Command, Element, Length};
+use iced::{Background, Color, Command, Element, Length, theme};
 use iced::widget::{button, Column, Space, Row, Container, container};
 use crate::core::data_manager::DataManager;
 use crate::core::filter::{FilterType};
 use crate::gui::gui_message::GUIMessage;
+use crate::gui::gui_theme;
 use crate::gui::views::filter::filter_view::FilterView;
 use crate::gui::views::list_load::{list_display, messages};
 
@@ -117,18 +118,21 @@ impl ListLoadView
                 button("Date filters")
                     .on_press(GUIMessage::OpenFilterView(FilterType::Date))
                     .padding(10)
+                    .style(theme::Button::custom(gui_theme::ButtonTheme))
             )
             .push
             (
                 button("Key filters")
                     .on_press(GUIMessage::OpenFilterView(FilterType::Key))
                     .padding(10)
+                    .style(theme::Button::custom(gui_theme::ButtonTheme))
             )
             .push
             (
                 button("Value filters")
                     .on_press(GUIMessage::OpenFilterView(FilterType::Value))
                     .padding(10)
+                    .style(theme::Button::custom(gui_theme::ButtonTheme))
             )
             .push
             (
@@ -139,6 +143,7 @@ impl ListLoadView
                 button("Select file")
                     .on_press(GUIMessage::SelectFile)
                     .padding(10)
+                    .style(theme::Button::custom(gui_theme::ButtonTheme))
             )
             .push
             (
@@ -148,7 +153,7 @@ impl ListLoadView
 
         let top_row_container = Container::new(top_row).style(container::Appearance
         {
-            background: Some(Background::Color(Color::from_rgb(0.2, 0.2, 0.23))),
+            background: Some(Background::Color(Color::from_rgb(0.2, 0.22, 0.22))),
             border: Default::default(),
             text_color: None,
             shadow: Default::default(),
