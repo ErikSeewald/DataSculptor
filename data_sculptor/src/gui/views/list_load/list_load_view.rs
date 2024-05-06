@@ -2,10 +2,10 @@
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use iced::{Background, Color, Command, Element, Length, theme};
-use iced::widget::{button, Column, Space, Row, Container, container};
+use iced::{Command, Element, Length, theme};
+use iced::widget::{button, Column, Space, Row, Container};
 use crate::core::data_manager::DataManager;
-use crate::core::filter::{FilterType};
+use crate::core::filter::{Filter, FilterType};
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::gui_theme;
 use crate::gui::views::filter::filter_view::FilterView;
@@ -36,7 +36,29 @@ impl Default for ListLoadView
             opened_filter_view: None
         };
 
-        instance.filter_views.insert(FilterType::Date, FilterView::from(FilterType::Date));
+        let mut date_filters = FilterView::from(FilterType::Date);
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
+
+
+
+        instance.filter_views.insert(FilterType::Date, date_filters);
         instance.filter_views.insert(FilterType::Key, FilterView::from(FilterType::Key));
         instance.filter_views.insert(FilterType::Value, FilterView::from(FilterType::Value));
 
@@ -151,13 +173,9 @@ impl ListLoadView
             )
             .spacing(20).into();
 
-        let top_row_container = Container::new(top_row).style(container::Appearance
-        {
-            background: Some(Background::Color(Color::from_rgb(0.2, 0.22, 0.22))),
-            border: Default::default(),
-            text_color: None,
-            shadow: Default::default(),
-        }).padding(20);
+        let top_row_container = Container::new(top_row)
+            .padding(20)
+            .style(gui_theme::container_bar_style());
 
         let msg_container = messages::build_message_container(&self);
         let data_list_display = list_display::display_list(data_manager);

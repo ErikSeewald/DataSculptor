@@ -7,5 +7,5 @@ pub enum FilterType
 
 pub struct Filter
 {
-    title: String
+    pub title: String
 }
