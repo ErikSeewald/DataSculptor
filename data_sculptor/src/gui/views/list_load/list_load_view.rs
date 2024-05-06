@@ -43,7 +43,7 @@ impl Default for ListLoadView
             let id = FilterID::from(i);
             let mut title = String::from("Filter Number");
             title.push_str(i.to_string().as_str());
-            date_filters.filters.insert(id.clone(), Filter{title, id});
+            date_filters.filters.insert(id, Filter{title});
         }
 
         instance.filter_views.insert(FilterType::Date, date_filters);

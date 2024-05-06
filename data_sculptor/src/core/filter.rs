@@ -7,8 +7,7 @@ pub enum FilterType
 
 pub struct Filter
 {
-    pub title: String,
-    pub id: FilterID
+    pub title: String
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
