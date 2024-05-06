@@ -1,6 +1,6 @@
 //! Defines the [`GUIMessage`] enum
 
-use crate::core::filter::FilterType;
+use crate::core::filter::{FilterID, FilterType};
 
 /// Enum holding all types of messages to be received and handled by the gui application.
 /// Sorted by the view module they belong to.
@@ -13,5 +13,6 @@ pub enum GUIMessage
     // LIST LOAD VIEW
     SelectFile,
     FileSelected(String),
-    OpenFilterView(FilterType)
+    OpenFilterView(FilterType),
+    ClickFilter(FilterID)
 }

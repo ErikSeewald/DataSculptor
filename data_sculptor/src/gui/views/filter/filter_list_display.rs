@@ -1,6 +1,6 @@
 //! Module handling the display of the list of filters for a specific [`FilterType`]
 
-use iced::{Alignment, Element, Length, theme};
+use iced::{Element, Length, theme};
 use iced::widget::{Button, Column, Container, Row, Scrollable};
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::gui_theme;
@@ -13,24 +13,41 @@ pub fn display_filter_list(filter_view: &FilterView) -> Element<GUIMessage>
 
     let mut filter_index = 0;
     let mut current_row = Row::new();
-    for filter in filter_view.filters.iter()
+    for filter in filter_view.filters.values()
     {
-        if filter_index % 4 == 0
+        if filter_index % 3 == 0
         {
             filter_column = filter_column.push(current_row);
             current_row = Row::new().spacing(20)
         }
 
-        current_row = current_row.push
-        (
-            Button::new(filter.title.as_str())
-            .on_press(GUIMessage::SelectFile)
-            .padding(20)
-            .style(theme::Button::custom(gui_theme::FilterButtonTheme))
-        );
+        let mut draw_as_selected = false;
+        if let Some(selected_filter) = &filter_view.selected_filter
+        {
+            draw_as_selected = selected_filter == &filter.id;
+        }
 
+        let mut filter_button: Button<GUIMessage> =
+            if draw_as_selected
+            {
+
+                Button::new("Click again to delete")
+                    .on_press(GUIMessage::ClickFilter(filter.id.clone()))
+                    .style(theme::Button::custom(gui_theme::FilterButtonSelectedTheme))
+            }
+            else
+            {
+                Button::new(filter.title.as_str())
+                    .on_press(GUIMessage::ClickFilter(filter.id.clone()))
+                    .style(theme::Button::custom(gui_theme::FilterButtonTheme))
+            };
+        filter_button = filter_button.padding(20).width(Length::Fixed(250.0));
+
+        current_row = current_row.push(filter_button);
         filter_index += 1;
     }
+    filter_column = filter_column.push(current_row);
+
 
     Scrollable::new
         (

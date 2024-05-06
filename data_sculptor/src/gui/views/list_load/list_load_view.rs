@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 use iced::{Command, Element, Length, theme};
 use iced::widget::{button, Column, Space, Row, Container};
 use crate::core::data_manager::DataManager;
-use crate::core::filter::{Filter, FilterType};
+use crate::core::filter::{Filter, FilterID, FilterType};
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::gui_theme;
 use crate::gui::views::filter::filter_view::FilterView;
@@ -37,26 +37,14 @@ impl Default for ListLoadView
         };
 
         let mut date_filters = FilterView::from(FilterType::Date);
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
-        date_filters.filters.push(Filter{title: String::from("Filter Number 1")});
 
-
+        for i in 0..15
+        {
+            let id = FilterID::from(i);
+            let mut title = String::from("Filter Number");
+            title.push_str(i.to_string().as_str());
+            date_filters.filters.insert(id.clone(), Filter{title, id});
+        }
 
         instance.filter_views.insert(FilterType::Date, date_filters);
         instance.filter_views.insert(FilterType::Key, FilterView::from(FilterType::Key));
@@ -71,12 +59,27 @@ impl ListLoadView
     // UPDATE
     pub fn update(&mut self, message: GUIMessage, dm: &Arc<Mutex<DataManager>>) -> Command<GUIMessage>
     {
-        match message
+        if let Some(filter_view) = &self.opened_filter_view
         {
-            GUIMessage::SelectFile => {self.select_file()}
-            GUIMessage::FileSelected(path) => {self.file_selected(path, dm)}
-            GUIMessage::OpenFilterView(filter_type) => {self.open_filter_view(filter_type)}
-            GUIMessage::ReturnToView(view_name) => {self.return_to_view(view_name)}
+            match message
+            {
+                GUIMessage::ReturnToView(view_name) => {self.return_to_view(view_name)}
+                _ =>
+                    {
+                        self.filter_views.get_mut(filter_view).unwrap().update(message)
+                    }
+            }
+        }
+
+        else
+        {
+            match message
+            {
+                GUIMessage::SelectFile => {self.select_file()}
+                GUIMessage::FileSelected(path) => {self.file_selected(path, dm)}
+                GUIMessage::OpenFilterView(filter_type) => {self.open_filter_view(filter_type)}
+                _ => {Command::none()}
+            }
         }
     }
 
@@ -130,7 +133,7 @@ impl ListLoadView
         // SHOW FILTER VIEW IF ONE IS OPENED
         if let Some(filter_view) = &self.opened_filter_view
         {
-            return self.filter_views.get(filter_view).unwrap().view()
+            return self.filter_views.get(filter_view).unwrap().view();
         }
 
         //TOP ROW

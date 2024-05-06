@@ -87,6 +87,46 @@ impl StyleSheet for FilterButtonTheme
     }
 }
 
+pub struct FilterButtonSelectedTheme;
+impl StyleSheet for FilterButtonSelectedTheme
+{
+    type Style = Theme;
+
+    fn active(&self, _style: &Self::Style) -> Appearance
+    {
+        Appearance
+        {
+            background: Some(Background::Color(Color::from_rgb(0.4, 0.2, 0.2))),
+            text_color: Color::WHITE,
+            border: Border
+            {
+                color: Color::from_rgb(0.1, 0.4, 0.25),
+                width: 0.0,
+                radius: Radius::from(2),
+            },
+            ..Default::default()
+        }
+    }
+
+    fn hovered(&self, _style: &Self::Style) -> Appearance
+    {
+        Appearance
+        {
+            background: Some(Background::Color(Color::from_rgb(0.45, 0.2, 0.2))),
+            ..self.active(_style)
+        }
+    }
+
+    fn pressed(&self, _style: &Self::Style) -> Appearance
+    {
+        Appearance
+        {
+            background: Some(Background::Color(Color::from_rgb(0.5, 0.2, 0.2))),
+            ..self.active(_style)
+        }
+    }
+}
+
 // -----CONTAINERS-----
 pub fn container_bar_style() -> container::Appearance
 {

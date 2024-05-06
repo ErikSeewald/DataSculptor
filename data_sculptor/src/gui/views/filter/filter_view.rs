@@ -1,9 +1,10 @@
 //! Module implementing the [`FilterView`]
 
+use std::collections::HashMap;
 use iced::{Command, Element, Alignment, theme};
 use iced::widget::{Button, Column, Container, Row, Space, TextInput};
 use crate::gui::gui_message::GUIMessage;
-use crate::core::filter::{FilterType, Filter};
+use crate::core::filter::{FilterType, Filter, FilterID};
 use crate::gui::views::list_load::list_load_view::ListLoadView;
 use crate::gui::gui_theme;
 use crate::gui::views::filter::filter_list_display::display_filter_list;
@@ -12,7 +13,8 @@ use crate::gui::views::filter::filter_list_display::display_filter_list;
 pub struct FilterView
 {
     pub filter_type: FilterType,
-    pub filters: Vec<Filter>
+    pub filters: HashMap<FilterID, Filter>,
+    pub selected_filter: Option<FilterID>
 }
 
 impl From<FilterType> for FilterView
@@ -22,7 +24,8 @@ impl From<FilterType> for FilterView
         Self
         {
             filter_type,
-            filters: Vec::new()
+            filters: HashMap::new(),
+            selected_filter: None
         }
     }
 }
@@ -34,8 +37,23 @@ impl FilterView
     {
         match message
         {
+            GUIMessage::ClickFilter(filter_id) => {self.click_filter(filter_id)}
             _ => {Command::none()}
         }
+    }
+
+    fn click_filter(&mut self, filter_id: FilterID) -> Command<GUIMessage>
+    {
+        if let Some(selected_id) = &self.selected_filter
+        {
+            if selected_id == &filter_id
+            {
+                self.filters.remove(selected_id);
+            }
+        }
+
+        self.selected_filter = Some(filter_id);
+        Command::none()
     }
 
     // VIEW
