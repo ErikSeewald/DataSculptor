@@ -1,3 +1,4 @@
+use crate::core::filters::filter_commands::{FilterCommand};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub enum FilterType
@@ -7,7 +8,8 @@ pub enum FilterType
 
 pub struct Filter
 {
-    pub title: String
+    pub title: String,
+    pub command: FilterCommand
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

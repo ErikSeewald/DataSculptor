@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Formatter};
-use chrono::NaiveDate;
+use chrono::{NaiveDate};
 use std::cmp::Eq;
 
 pub const DATE_FORMAT: &str =  "%Y-%m-%d";
@@ -48,6 +48,12 @@ pub struct EntryValue
     pub string_value: String
 }
 
+pub struct EntryRef<'a>
+{
+    pub date: &'a DateKey,
+    pub key: &'a EntryKey,
+    pub value: &'a EntryValue
+}
 
 // PARSING
 /// Errors that can occur while parsing between the core data structures.

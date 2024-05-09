@@ -1,29 +1,27 @@
-//! Module implementing the [`ListLoadView`]
+//! Module implementing the control functions for the [`ListView`]
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use iced::{Command, Element, Length, theme};
-use iced::widget::{button, Column, Space, Row, Container};
+use iced::{Command};
 use crate::core::data_manager::DataManager;
-use crate::core::filter::{Filter, FilterID, FilterType};
+use crate::core::filters::filter::{Filter, FilterID, FilterType};
+use crate::core::filters::filter_commands::{FilterCommand};
 use crate::gui::gui_message::GUIMessage;
-use crate::gui::gui_theme;
 use crate::gui::views::filter::filter_view::FilterView;
-use crate::gui::views::list_load::{list_display, messages};
 
 /// Lets the user load a data file and display it in a scrollable list.
 ///
 /// Also handles displaying file io errors.
-pub struct ListLoadView
+pub struct ListView
 {
     pub loaded_valid_file: bool,
     pub load_error_msg: String,
     pub loading_file: bool,
-    filter_views: HashMap<FilterType, FilterView>,
-    opened_filter_view: Option<FilterType>
+    pub(crate) filter_views: HashMap<FilterType, FilterView>,
+    pub(crate) opened_filter_view: Option<FilterType>
 }
 
-impl Default for ListLoadView
+impl Default for ListView
 {
     fn default() -> Self
     {
@@ -43,7 +41,7 @@ impl Default for ListLoadView
             let id = FilterID::from(i);
             let mut title = String::from("Filter Number");
             title.push_str(i.to_string().as_str());
-            date_filters.filters.insert(id, Filter{title});
+            date_filters.filters.insert(id, Filter{title, command: FilterCommand::Contains(String::from("1"))});
         }
 
         instance.filter_views.insert(FilterType::Date, date_filters);
@@ -54,7 +52,8 @@ impl Default for ListLoadView
     }
 }
 
-impl ListLoadView
+/// Implementation of the control functions for the list view
+impl ListView
 {
     // UPDATE
     pub fn update(&mut self, message: GUIMessage, dm: &Arc<Mutex<DataManager>>) -> Command<GUIMessage>
@@ -118,78 +117,13 @@ impl ListLoadView
 
     fn return_to_view(&mut self, view_name: &str) -> Command<GUIMessage>
     {
-        if view_name != ListLoadView::view_title()
+        if view_name != ListView::view_title()
         {
             return Command::none()
         }
 
         self.opened_filter_view = None;
         Command::none()
-    }
-
-    // VIEW
-    pub fn view<'a>(&'a self, data_manager: &'a Arc<Mutex<DataManager>>) -> Element<GUIMessage>
-    {
-        // SHOW FILTER VIEW IF ONE IS OPENED
-        if let Some(filter_view) = &self.opened_filter_view
-        {
-            return self.filter_views.get(filter_view).unwrap().view();
-        }
-
-        //TOP ROW
-        let top_row: Element<GUIMessage> = Row::new()
-            .push
-            (
-                button("Date filters")
-                    .on_press(GUIMessage::OpenFilterView(FilterType::Date))
-                    .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
-            )
-            .push
-            (
-                button("Key filters")
-                    .on_press(GUIMessage::OpenFilterView(FilterType::Key))
-                    .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
-            )
-            .push
-            (
-                button("Value filters")
-                    .on_press(GUIMessage::OpenFilterView(FilterType::Value))
-                    .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
-            )
-            .push
-            (
-                Space::with_width(Length::FillPortion(10))
-            )
-            .push
-            (
-                button("Select file")
-                    .on_press(GUIMessage::SelectFile)
-                    .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
-            )
-            .push
-            (
-                Space::with_width(Length::FillPortion(1))
-            )
-            .spacing(20).into();
-
-        let top_row_container = Container::new(top_row)
-            .padding(20)
-            .style(gui_theme::container_bar_style());
-
-        let msg_container = messages::build_message_container(&self);
-        let data_list_display = list_display::display_list(data_manager);
-
-        Column::new()
-            .push(Space::with_height(15))
-            .push(top_row_container)
-            .push(Space::with_height(20))
-            .push(msg_container)
-            .push(data_list_display)
-            .into()
     }
 
     pub fn view_title() -> &'static str

@@ -1,5 +1,4 @@
-//! Module containing the list load view and its utility modules.
+//! Module containing the list view and its utility modules.
 
-pub mod list_load_view;
-mod list_display;
-mod messages;
+pub mod list_view_control;
+mod list_view_display;

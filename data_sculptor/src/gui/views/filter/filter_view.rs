@@ -4,8 +4,8 @@ use std::collections::HashMap;
 use iced::{Command, Element, Alignment, theme};
 use iced::widget::{Button, Column, Container, Row, Space, TextInput};
 use crate::gui::gui_message::GUIMessage;
-use crate::core::filter::{FilterType, Filter, FilterID};
-use crate::gui::views::list_load::list_load_view::ListLoadView;
+use crate::core::filters::filter::{FilterType, Filter, FilterID};
+use crate::gui::views::list_load::list_view_control::ListView;
 use crate::gui::gui_theme;
 use crate::gui::views::filter::filter_list_display::display_filter_list;
 
@@ -61,7 +61,7 @@ impl FilterView
     {
         // SAVE AND EXIT
         let save_button = Button::new("Save and exit")
-            .on_press(GUIMessage::ReturnToView(ListLoadView::view_title()))
+            .on_press(GUIMessage::ReturnToView(ListView::view_title()))
             .padding(10)
             .style(theme::Button::custom(gui_theme::ButtonTheme));
 

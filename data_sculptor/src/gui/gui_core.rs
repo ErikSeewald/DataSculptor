@@ -7,7 +7,7 @@ use iced::{Application, Command, Element, Settings, Theme};
 use std::sync::{Arc, Mutex};
 use crate::core::data_manager::DataManager;
 use crate::gui::views::gui_view_type::GUIViewType;
-use crate::gui::views::list_load::list_load_view::ListLoadView;
+use crate::gui::views::list_load::list_view_control::ListView;
 use crate::gui::gui_message::GUIMessage;
 
 /// Initializes the iced application using an [`Arc`] of the [`DataManager`] that is shared
@@ -25,7 +25,7 @@ pub struct MainGUI
     pub cur_view: GUIViewType,
 
     // VIEWS
-    pub list_load_view: ListLoadView
+    pub list_load_view: ListView
 }
 
 impl Application for MainGUI
@@ -45,7 +45,7 @@ impl Application for MainGUI
                 cur_view: GUIViewType::ListLoadView,
 
                 // VIEWS
-                list_load_view: ListLoadView::default()
+                list_load_view: ListView::default()
             };
 
         return (instance, Command::none());
