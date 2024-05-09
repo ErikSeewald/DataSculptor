@@ -7,7 +7,7 @@ use crate::core::data_manager::DataManager;
 use crate::core::filters::filter::{Filter, FilterID, FilterType};
 use crate::core::filters::filter_commands::{FilterCommand};
 use crate::gui::gui_message::GUIMessage;
-use crate::gui::views::filter::filter_view::FilterView;
+use crate::gui::views::filter::filter_view_control::FilterView;
 
 /// Lets the user load a data file and display it in a scrollable list.
 ///
