@@ -1,16 +1,18 @@
 //! Module implementing the control functions for the [`FilterView`]
 
-use std::collections::HashMap;
 use iced::{Command};
 use crate::gui::gui_message::GUIMessage;
 use crate::core::filters::filter::{FilterType, Filter, FilterID};
+use crate::core::filters::filter_commands::FilterCommand;
+use indexmap::IndexMap;
 
 /// View for displaying and setting filters for the data list
 pub struct FilterView
 {
     pub filter_type: FilterType,
-    pub filters: HashMap<FilterID, Filter>,
-    pub selected_filter: Option<FilterID>
+    pub filters: IndexMap<FilterID, Filter>, // index map to preserve order in list display
+    pub selected_filter: Option<FilterID>,
+    pub(crate) input_value: String,
 }
 
 impl From<FilterType> for FilterView
@@ -20,8 +22,9 @@ impl From<FilterType> for FilterView
         Self
         {
             filter_type,
-            filters: HashMap::new(),
-            selected_filter: None
+            filters: IndexMap::new(),
+            selected_filter: None,
+            input_value: String::new(),
         }
     }
 }
@@ -35,6 +38,8 @@ impl FilterView
         match message
         {
             GUIMessage::ClickFilter(filter_id) => {self.click_filter(filter_id)}
+            GUIMessage::FilterInputChanged(input) => {self.update_input(input)}
+            GUIMessage::AddFilter => {self.add_filter()}
             _ => {Command::none()}
         }
     }
@@ -45,12 +50,32 @@ impl FilterView
         {
             if selected_id == &filter_id
             {
-                self.filters.remove(selected_id);
+                self.filters.shift_remove(selected_id);
             }
         }
 
         self.selected_filter = Some(filter_id);
         Command::none()
     }
-}
 
+    fn update_input(&mut self, input: String) -> Command<GUIMessage>
+    {
+        self.input_value = input;
+        Command::none()
+    }
+
+    fn add_filter(&mut self) -> Command<GUIMessage>
+    {
+        self.filters.insert
+        (
+            FilterID::random(),
+            Filter
+            {
+                title: self.input_value.clone(),
+                command: FilterCommand::Contains(self.input_value.clone())
+            }
+        );
+        self.input_value = String::new();
+        Command::none()
+    }
+}

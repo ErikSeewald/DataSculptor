@@ -14,5 +14,7 @@ pub enum GUIMessage
     SelectFile,
     FileSelected(String),
     OpenFilterView(FilterType),
-    ClickFilter(FilterID)
+    ClickFilter(FilterID),
+    FilterInputChanged(String),
+    AddFilter,
 }

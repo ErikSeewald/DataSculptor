@@ -1,7 +1,7 @@
 //! Module implementing the display functions for the [`FilterView`]
 
 use iced::{Alignment, Element, Length, theme};
-use iced::widget::{Button, Column, Container, Row, Scrollable, Space, TextInput};
+use iced::widget::{Button, Column, Container, Row, Scrollable, Space, text_input};
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::gui_theme;
 use crate::gui::views::filter::filter_view_control::FilterView;
@@ -19,15 +19,17 @@ impl FilterView
             .style(theme::Button::custom(gui_theme::ButtonTheme));
 
         // INPUT ROW
-        let text_input = TextInput::new(
-            "Eh",
+        let text_input = text_input(
             "Enter text...",
+            &self.input_value
         )
+            .on_input(GUIMessage::FilterInputChanged)
+            .on_submit(GUIMessage::AddFilter)
             .padding(10)
             .size(20);
 
         let add_button = Button::new("Add filter")
-            .on_press(GUIMessage::SelectFile)
+            .on_press(GUIMessage::AddFilter)
             .padding(10)
             .style(theme::Button::custom(gui_theme::ButtonTheme));
 
@@ -62,7 +64,7 @@ impl FilterView
 
         let mut filter_index = 0;
         let mut current_row = Row::new();
-        for (id, filter) in self.filters.iter()
+        for (id, filter) in &self.filters
         {
             if filter_index % 3 == 0
             {

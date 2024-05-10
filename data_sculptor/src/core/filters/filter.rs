@@ -1,4 +1,5 @@
 use crate::core::filters::filter_commands::{FilterCommand};
+use rand::{Rng, thread_rng};
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub enum FilterType
@@ -16,6 +17,15 @@ pub struct Filter
 pub struct FilterID
 {
     numeric_id: u64
+}
+
+impl FilterID
+{
+    pub fn random() -> Self
+    {
+        let mut rng = thread_rng();
+        Self {numeric_id: rng.gen()}
+    }
 }
 
 impl From<u64> for FilterID
