@@ -4,8 +4,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use iced::{Command};
 use crate::core::data_manager::DataManager;
-use crate::core::filters::filter::{Filter, FilterID, FilterType};
-use crate::core::filters::filter_commands::{FilterCommand};
+use crate::core::filters::filter::{FilterType};
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::views::filter::filter_view_control::FilterView;
 
@@ -33,18 +32,8 @@ impl Default for ListView
             filter_views: HashMap::new(),
             opened_filter_view: None
         };
-
-        let mut date_filters = FilterView::from(FilterType::Date);
-
-        for i in 0..15
-        {
-            let id = FilterID::from(i);
-            let mut title = String::from("Filter Number");
-            title.push_str(i.to_string().as_str());
-            date_filters.filters.insert(id, Filter{title, command: FilterCommand::Contains(String::from("1"))});
-        }
-
-        instance.filter_views.insert(FilterType::Date, date_filters);
+        
+        instance.filter_views.insert(FilterType::Date, FilterView::from(FilterType::Date));
         instance.filter_views.insert(FilterType::Key, FilterView::from(FilterType::Key));
         instance.filter_views.insert(FilterType::Value, FilterView::from(FilterType::Value));
 
@@ -120,6 +109,11 @@ impl ListView
         if view_name != ListView::view_title()
         {
             return Command::none()
+        }
+
+        if let Some(filter_view_type) = &self.opened_filter_view
+        {
+            self.filter_views.get_mut(filter_view_type).unwrap().exit_view();
         }
 
         self.opened_filter_view = None;

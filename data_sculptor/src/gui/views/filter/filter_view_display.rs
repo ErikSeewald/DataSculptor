@@ -5,7 +5,7 @@ use iced::widget::{Button, Column, Container, Row, Scrollable, Space, text_input
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::gui_theme;
 use crate::gui::views::filter::filter_view_control::FilterView;
-use crate::gui::views::list_load::list_view_control::ListView;
+use crate::gui::views::list::list_view_control::ListView;
 
 /// Implementation of the display functions for the list view
 impl FilterView
@@ -20,7 +20,7 @@ impl FilterView
 
         // INPUT ROW
         let text_input = text_input(
-            "Enter text...",
+            "Filter syntax description in README.md",
             &self.input_value
         )
             .on_input(GUIMessage::FilterInputChanged)

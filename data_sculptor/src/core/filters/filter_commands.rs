@@ -3,9 +3,23 @@
 use crate::core::data_containers::{DateKey, EntryRef};
 
 /// Enum representing all supported ways to filter data in data_sculptor.
+#[derive(Hash)]
 pub enum FilterCommand
 {
-    Contains(String)
+    /// Checks if the value contains the given String
+    ///
+    /// # Args (index order)
+    /// - `invert`: Boolean flag indicating whether the value of the operation should be inverted
+    /// - `keyword`: String that the value should contain
+    Contains(bool, String),
+
+    /// Checks if the value corresponding to the given key contains the given String
+    ///
+    /// # Args (index order)
+    /// - `invert`: Boolean flag indicating whether the value of the operation should be inverted
+    /// - `key`: String title of the key of the key-value pair to check
+    /// - `keyword`: String that the value should contain
+    KeyValueContains(bool, String, String)
 }
 
 impl FilterCommand
@@ -21,7 +35,11 @@ impl FilterCommand
     {
         match self
         {
-            FilterCommand::Contains(keyword) => date.date_string.contains(keyword),
+            FilterCommand::Contains(invert, keyword) =>
+                {
+                    invert ^ date.date_string.contains(keyword)
+                },
+            _ => {true}
         }
     }
 
@@ -36,7 +54,11 @@ impl FilterCommand
     {
         match self
         {
-            FilterCommand::Contains(keyword) => entry.key.title.contains(keyword),
+            FilterCommand::Contains(invert, keyword) =>
+                {
+                    invert ^ entry.key.title.contains(keyword)
+                },
+            _ => {true}
         }
     }
 
@@ -51,7 +73,15 @@ impl FilterCommand
     {
         match self
         {
-            FilterCommand::Contains(keyword) => entry.value.string_value.contains(keyword),
+            FilterCommand::KeyValueContains(invert, key, keyword) =>
+                {
+                    if key == &entry.key.title
+                    {
+                        return invert ^ entry.value.string_value.contains(keyword);
+                    }
+                    return true; // accept all other key-value pairs by default
+                }
+            _ => {true}
         }
     }
 }

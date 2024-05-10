@@ -3,7 +3,7 @@
 use iced::{Command};
 use crate::gui::gui_message::GUIMessage;
 use crate::core::filters::filter::{FilterType, Filter, FilterID};
-use crate::core::filters::filter_commands::FilterCommand;
+use crate::core::filters::filter_parser;
 use indexmap::IndexMap;
 
 /// View for displaying and setting filters for the data list
@@ -51,6 +51,8 @@ impl FilterView
             if selected_id == &filter_id
             {
                 self.filters.shift_remove(selected_id);
+                self.selected_filter = None;
+                return Command::none();
             }
         }
 
@@ -60,22 +62,37 @@ impl FilterView
 
     fn update_input(&mut self, input: String) -> Command<GUIMessage>
     {
-        self.input_value = input;
+        if input.len() < 500
+        {
+            self.input_value = input;
+        }
+
         Command::none()
     }
 
     fn add_filter(&mut self) -> Command<GUIMessage>
     {
-        self.filters.insert
-        (
-            FilterID::random(),
-            Filter
-            {
-                title: self.input_value.clone(),
-                command: FilterCommand::Contains(self.input_value.clone())
-            }
-        );
-        self.input_value = String::new();
+        let parse_result = filter_parser::parse(&self.filter_type, self.input_value.clone());
+        if let Some(filter_command) = parse_result
+        {
+            self.filters.insert
+            (
+                FilterID::from(&filter_command),
+                Filter
+                {
+                    title: self.input_value.clone(),
+                    command: filter_command
+                }
+            );
+            self.input_value.clear();
+        }
+
         Command::none()
+    }
+
+    /// Handles updating variables when the [`FilterView`] is exited.
+    pub fn exit_view(&mut self)
+    {
+        self.selected_filter = None;
     }
 }

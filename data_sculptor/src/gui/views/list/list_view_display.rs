@@ -3,12 +3,12 @@
 use std::sync::{Arc, Mutex};
 use iced::{Color, Element, Length, theme};
 use iced::widget::{button, Column, Container, Row, Scrollable, Space, Text};
-use crate::core::data_containers::{DateKey, EntryRef};
+use crate::core::data_containers::{DayDataParsed, EntryRef};
 use crate::core::data_manager::DataManager;
 use crate::core::filters::filter::FilterType;
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::gui_theme;
-use crate::gui::views::list_load::list_view_control::ListView;
+use crate::gui::views::list::list_view_control::ListView;
 
 /// Implementation of the display functions for the list view
 impl ListView
@@ -77,6 +77,14 @@ impl ListView
             .into()
     }
 
+    /// Displays the data in the given [`DataManager`] filtered by all
+    /// [`FilterView`]s. The filters have the following effect:
+    ///
+    /// 1. If the *date* filter does not match, the *whole day* is skipped
+    ///
+    /// 2. If the *key* filter does not match at least one key filter, only the *key* is skipped
+    ///
+    /// 3. If the *value* filter does not match, the *whole day* is skipped
     fn display_list(&self, data_manager: &Arc<Mutex<DataManager>>) -> Element<GUIMessage>
     {
         let date_color = Color::new(0.4, 0.8, 0.5, 1.0);
@@ -86,12 +94,12 @@ impl ListView
 
         for day in &data_manager.lock().unwrap().data
         {
-            // DATE
-            if !self.filter_date(&day.date)
+            if !self.filter_day(&day)
             {
-                continue; // skip filtered dates
+                continue; // skip filtered days (based on date and value filters)
             }
 
+            // DATE
             let date_text = Text::new(day.date.date_string.clone())
                 .size(20)
                 .style(date_color);
@@ -104,9 +112,9 @@ impl ListView
             let mut entries_column = Column::new().spacing(10);
             for (key, value) in &day.entries
             {
-                if !self.filter_key_and_value(&EntryRef{date: &day.date, key, value})
+                if !self.filter_key(&EntryRef{date: &day.date, key, value,})
                 {
-                    continue; // skip filtered keys/values
+                    continue; // do not show keys that are filtered out
                 }
 
                 entries_column = entries_column.push
@@ -128,44 +136,64 @@ impl ListView
             .into()
     }
 
-    /// Runs the given [`DateKey`] through all currently active
-    /// filters and returns whether it is valid to show
-    fn filter_date(&self, date: &DateKey) -> bool
+    /// Runs the given [`DayDataParsed`] through all currently active
+    /// filters and returns whether it is valid to show.
+    /// This is the case if:
+    ///
+    /// 1. The date matches the date filter condition
+    ///
+    /// 2. The values match the value filter condition
+    ///
+    /// This means we filter out days completely through date and value filters,
+    /// meanwhile the key filters only filter which key value pairs are shown.
+    fn filter_day(&self, day: &DayDataParsed) -> bool
     {
+        // DATE
         for (_, filter) in &self.filter_views.get(&FilterType::Date).unwrap().filters
         {
-            if !filter.command.apply_date_filter(date)
+            if !filter.command.apply_date_filter(&day.date)
             {
                 return false;
             }
         }
+
+        for (key, value) in &day.entries
+        {
+            let entry = &EntryRef{ date: &day.date, key, value};
+
+            // VALUE
+            for (_, filter) in &self.filter_views.get(&FilterType::Value).unwrap().filters
+            {
+                if !filter.command.apply_value_filter(entry)
+                {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
-    /// Runs the key and value in the given [`EntryRef`] through all currently active
-    /// filters and returns whether it is valid to show
-    fn filter_key_and_value(&self, entry: &EntryRef) -> bool
+    /// Runs the given [`EntryRef`] through all currently active
+    /// filters and returns whether its key is valid under at least one filter condition.
+    fn filter_key(&self, entry: &EntryRef) -> bool
     {
-        // KEY
+        if self.filter_views.get(&FilterType::Key).unwrap().filters.is_empty()
+        {
+            return true;
+        }
+
         for (_, filter) in &self.filter_views.get(&FilterType::Key).unwrap().filters
         {
-            if !filter.command.apply_key_filter(entry)
+            if filter.command.apply_key_filter(entry)
             {
-                return false;
+                return true;
             }
         }
-
-        // VALUE
-        for (_, filter) in &self.filter_views.get(&FilterType::Value).unwrap().filters
-        {
-            if !filter.command.apply_value_filter(entry)
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return false;
     }
+
+
 
     /// Builds the message container with the correct error message based on the state
     /// of the given [`ListView`].

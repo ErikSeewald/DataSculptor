@@ -10,10 +10,12 @@ pub enum GUIMessage
     // GENERAL
     ReturnToView(&'static str),
 
-    // LIST LOAD VIEW
+    // LIST VIEW
     SelectFile,
     FileSelected(String),
     OpenFilterView(FilterType),
+
+    // FILTER VIEW
     ClickFilter(FilterID),
     FilterInputChanged(String),
     AddFilter,
