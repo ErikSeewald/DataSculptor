@@ -149,11 +149,15 @@ impl ListView
     fn filter_day(&self, day: &DayDataParsed) -> bool
     {
         // DATE
-        for (_, filter) in &self.filter_views.get(&FilterType::Date).unwrap().filters
+        if let Some((key, value)) = day.entries.iter().next()
         {
-            if !filter.command.apply_date_filter(&day.date)
+            let date_entry = &EntryRef{ date: &day.date, key, value};
+            for (_, filter) in &self.filter_views.get(&FilterType::Date).unwrap().filters
             {
-                return false;
+                if !filter.expression.evaluate(date_entry, &FilterType::Date)
+                {
+                    return false;
+                }
             }
         }
 
@@ -164,7 +168,7 @@ impl ListView
             // VALUE
             for (_, filter) in &self.filter_views.get(&FilterType::Value).unwrap().filters
             {
-                if !filter.command.apply_value_filter(entry)
+                if !filter.expression.evaluate(entry, &FilterType::Value)
                 {
                     return false;
                 }
@@ -185,7 +189,7 @@ impl ListView
 
         for (_, filter) in &self.filter_views.get(&FilterType::Key).unwrap().filters
         {
-            if filter.command.apply_key_filter(entry)
+            if filter.expression.evaluate(entry, &FilterType::Key)
             {
                 return true;
             }

@@ -1,5 +1,5 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
-use crate::core::filters::filter_commands::{FilterCommand};
+use crate::core::filters::filter_expression::FilterExpression;
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub enum FilterType
@@ -10,7 +10,7 @@ pub enum FilterType
 pub struct Filter
 {
     pub title: String,
-    pub command: FilterCommand
+    pub expression: FilterExpression
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -19,12 +19,12 @@ pub struct FilterID
     numeric_id: u64
 }
 
-impl From<&FilterCommand> for FilterID
+impl From<&FilterExpression> for FilterID
 {
-    fn from(command: &FilterCommand) -> Self
+    fn from(expression: &FilterExpression) -> Self
     {
         let mut hasher = DefaultHasher::new();
-        command.hash(&mut hasher);
+        expression.hash(&mut hasher);
         Self{numeric_id: hasher.finish()}
     }
 }
