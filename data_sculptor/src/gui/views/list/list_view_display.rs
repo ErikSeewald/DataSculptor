@@ -112,7 +112,7 @@ impl ListView
             let mut entries_column = Column::new().spacing(10);
             for (key, value) in &day.entries
             {
-                if !self.filter_key(&EntryRef{date: &day.date, key, value,})
+                if !self.filter_key(day, &EntryRef{date: &day.date, key, value,})
                 {
                     continue; // do not show keys that are filtered out
                 }
@@ -154,7 +154,7 @@ impl ListView
             let date_entry = &EntryRef{ date: &day.date, key, value};
             for (_, filter) in &self.filter_views.get(&FilterType::Date).unwrap().filters
             {
-                if !filter.expression.evaluate(date_entry, &FilterType::Date)
+                if !filter.expression.evaluate(day, date_entry, &FilterType::Date)
                 {
                     return false;
                 }
@@ -168,7 +168,7 @@ impl ListView
             // VALUE
             for (_, filter) in &self.filter_views.get(&FilterType::Value).unwrap().filters
             {
-                if !filter.expression.evaluate(entry, &FilterType::Value)
+                if !filter.expression.evaluate(day, entry, &FilterType::Value)
                 {
                     return false;
                 }
@@ -180,7 +180,7 @@ impl ListView
 
     /// Runs the given [`EntryRef`] through all currently active
     /// filters and returns whether its key is valid under at least one filter condition.
-    fn filter_key(&self, entry: &EntryRef) -> bool
+    fn filter_key(&self, day: &DayDataParsed, entry: &EntryRef) -> bool
     {
         if self.filter_views.get(&FilterType::Key).unwrap().filters.is_empty()
         {
@@ -189,7 +189,7 @@ impl ListView
 
         for (_, filter) in &self.filter_views.get(&FilterType::Key).unwrap().filters
         {
-            if filter.expression.evaluate(entry, &FilterType::Key)
+            if filter.expression.evaluate(day, entry, &FilterType::Key)
             {
                 return true;
             }

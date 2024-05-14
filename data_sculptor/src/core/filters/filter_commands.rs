@@ -1,6 +1,6 @@
 //! Module implementing ways to filter data in data_sculptor.
 
-use crate::core::data_containers::{DateKey, EntryRef};
+use crate::core::data_containers::{DateKey, DayDataParsed, EntryRef};
 
 /// Enum representing all supported ways to filter data in data_sculptor.
 #[derive(Hash)]
@@ -62,24 +62,28 @@ impl FilterCommand
         }
     }
 
-    /// Checks the given [`EntryRef`] and returns whether its value is valid under the rules
+    /// Checks the given [`DayDataParsed`] and returns whether its values are valid under the rules
     /// of the [`FilterCommand`] that implements this function.
     ///
     /// # Returns
     /// - filtered out (i.e. value invalid): false
     ///
     /// - not filtered out (i.e. value valid): true
-    pub fn apply_value_filter(&self, entry: &EntryRef) -> bool
+    pub fn apply_value_filter(&self, day: &DayDataParsed) -> bool
     {
         match self
         {
             FilterCommand::KeyValueContains(invert, key, keyword) =>
                 {
-                    if key == &entry.key.title
+                    for (day_key, day_value) in &day.entries
                     {
-                        return invert ^ entry.value.string_value.contains(keyword);
+                        if &day_key.title == key
+                        {
+                            return invert ^ day_value.string_value.contains(keyword);
+                        }
                     }
-                    return true; // accept all other key-value pairs by default
+
+                    return true;
                 }
             _ => {true}
         }

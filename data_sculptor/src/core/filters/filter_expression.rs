@@ -1,4 +1,4 @@
-use crate::core::data_containers::EntryRef;
+use crate::core::data_containers::{DayDataParsed, EntryRef};
 use crate::core::filters::filter::FilterType;
 use crate::core::filters::filter_commands::FilterCommand;
 use crate::core::filters::filter_parser;
@@ -18,23 +18,23 @@ pub enum FilterExpression
 
 impl FilterExpression
 {
-    pub fn evaluate(&self, entry: &EntryRef, f_type: &FilterType) -> bool
+    pub fn evaluate(&self, day: &DayDataParsed, entry: &EntryRef, f_type: &FilterType) -> bool
     {
         match self
         {
             FilterExpression::Single(cmd) => match f_type
             {
-                FilterType::Date => cmd.apply_date_filter(entry.date),
+                FilterType::Date => cmd.apply_date_filter(&day.date),
                 FilterType::Key => cmd.apply_key_filter(entry),
-                FilterType::Value => cmd.apply_value_filter(entry),
+                FilterType::Value => cmd.apply_value_filter(day),
             },
-            FilterExpression::Not(inner) => !inner.evaluate(entry, f_type),
-            FilterExpression::And(a, b) => a.evaluate(entry, f_type) && b.evaluate(entry, f_type),
-            FilterExpression::Or(a, b) => a.evaluate(entry, f_type) || b.evaluate(entry, f_type),
-            FilterExpression::Xor(a, b) => a.evaluate(entry, f_type) ^ b.evaluate(entry, f_type),
-            FilterExpression::Nor(a, b) => !(a.evaluate(entry, f_type) || b.evaluate(entry, f_type)),
-            FilterExpression::Nand(a, b) => !(a.evaluate(entry, f_type) && b.evaluate(entry, f_type)),
-            FilterExpression::Xnor(a, b) => !(a.evaluate(entry, f_type) ^ b.evaluate(entry, f_type)),
+            FilterExpression::Not(inner) => !inner.evaluate(day, entry, f_type),
+            FilterExpression::And(a, b) => a.evaluate(day, entry, f_type) && b.evaluate(day, entry, f_type),
+            FilterExpression::Or(a, b) => a.evaluate(day, entry, f_type) || b.evaluate(day, entry, f_type),
+            FilterExpression::Xor(a, b) => a.evaluate(day, entry, f_type) ^ b.evaluate(day, entry, f_type),
+            FilterExpression::Nor(a, b) => !(a.evaluate(day, entry, f_type) || b.evaluate(day, entry, f_type)),
+            FilterExpression::Nand(a, b) => !(a.evaluate(day, entry, f_type) && b.evaluate(day, entry, f_type)),
+            FilterExpression::Xnor(a, b) => !(a.evaluate(day, entry, f_type) ^ b.evaluate(day, entry, f_type)),
         }
     }
 }
