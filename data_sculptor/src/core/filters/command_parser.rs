@@ -1,7 +1,7 @@
 //! Module for parsing [`String`]s into [`FilterCommand`]s.
 
 use crate::core::filters::filter::FilterType;
-use crate::core::filters::filter_commands::FilterCommand;
+use crate::core::filters::filter::FilterCommand;
 
 /// Keywords corresponding to [`FilterCommand`]s.
 enum Keywords
@@ -35,42 +35,29 @@ impl Keywords
 /// - `None` if parsing was unsuccessful
 pub fn parse(filter_type: &FilterType, input: String,) -> Option<FilterCommand>
 {
-    let invert: bool;
-    let not_keyword = "not ";
-    if input.starts_with(not_keyword)
+    if input.starts_with(Keywords::Contains.cmd_str())
     {
-        invert = true;
-        parse_command(filter_type, &input[not_keyword.len()..], invert)
+        if filter_type != &FilterType::Value
+        {
+            return parse_contains(&input[Keywords::Contains.cmd_len()..]);
+        }
     }
 
-    else
+    if input.starts_with(Keywords::KeyValueContains.cmd_str())
     {
-        invert = false;
-        parse_command(filter_type, &input, invert)
-    }
-}
-
-/// Parses the given command, assuming that the invert flag has already been set and the
-/// invert keyword has been cut out of the input &str
-fn parse_command(filter_type: &FilterType, input: &str, invert: bool) -> Option<FilterCommand>
-{
-    if input.starts_with(Keywords::Contains.cmd_str()) && filter_type != &FilterType::Value
-    {
-        return parse_contains(&input[Keywords::Contains.cmd_len()..], invert);
-    }
-
-    if input.starts_with(Keywords::KeyValueContains.cmd_str()) && filter_type == &FilterType::Value
-    {
-        return parse_kv_contains(&input[Keywords::KeyValueContains.cmd_len()..], invert)
+        if filter_type == &FilterType::Value
+        {
+            return parse_kv_contains(&input[Keywords::KeyValueContains.cmd_len()..])
+        }
     }
 
     None
 }
 
-fn parse_contains(input: &str, invert: bool) -> Option<FilterCommand>
+fn parse_contains(input: &str) -> Option<FilterCommand>
 {
     let contains_string = get_contains_string_and_very_position(input)?;
-    Some(FilterCommand::Contains(invert, contains_string))
+    Some(FilterCommand::Contains(contains_string))
 }
 
 /// Gets the string keyword inside quotation marks for 'contains' filters.
@@ -94,7 +81,7 @@ fn get_contains_string_and_very_position(input: &str) -> Option<String>
     return Some(String::from(&input[start + 2..end]))
 }
 
-fn parse_kv_contains(input: &str, invert: bool,) -> Option<FilterCommand>
+fn parse_kv_contains(input: &str) -> Option<FilterCommand>
 {
     // KEY
     let start = input.find(" \"")?;
@@ -109,5 +96,5 @@ fn parse_kv_contains(input: &str, invert: bool,) -> Option<FilterCommand>
 
     // CONTAINS
     let contains_string = get_contains_string_and_very_position(&input[end + 1..])?;
-    Some(FilterCommand::KeyValueContains(invert, key, contains_string))
+    Some(FilterCommand::KeyValueContains(key, contains_string))
 }

@@ -1,51 +1,39 @@
-use crate::core::data_containers::{DayDataParsed, EntryRef};
+use crate::core::filters::command_parser;
 use crate::core::filters::filter::FilterType;
-use crate::core::filters::filter_commands::FilterCommand;
-use crate::core::filters::filter_parser;
+use crate::core::filters::filter::FilterExpression;
 
-#[derive(Hash)]
-pub enum FilterExpression
-{
-    Single(FilterCommand),
-    Not(Box<FilterExpression>),
-    And(Box<FilterExpression>, Box<FilterExpression>),
-    Or(Box<FilterExpression>, Box<FilterExpression>),
-    Xor(Box<FilterExpression>, Box<FilterExpression>),
-    Nor(Box<FilterExpression>, Box<FilterExpression>),
-    Nand(Box<FilterExpression>, Box<FilterExpression>),
-    Xnor(Box<FilterExpression>, Box<FilterExpression>),
-}
-
-impl FilterExpression
-{
-    pub fn evaluate(&self, day: &DayDataParsed, entry: &EntryRef, f_type: &FilterType) -> bool
-    {
-        match self
-        {
-            FilterExpression::Single(cmd) => match f_type
-            {
-                FilterType::Date => cmd.apply_date_filter(&day.date),
-                FilterType::Key => cmd.apply_key_filter(entry),
-                FilterType::Value => cmd.apply_value_filter(day),
-            },
-            FilterExpression::Not(inner) => !inner.evaluate(day, entry, f_type),
-            FilterExpression::And(a, b) => a.evaluate(day, entry, f_type) && b.evaluate(day, entry, f_type),
-            FilterExpression::Or(a, b) => a.evaluate(day, entry, f_type) || b.evaluate(day, entry, f_type),
-            FilterExpression::Xor(a, b) => a.evaluate(day, entry, f_type) ^ b.evaluate(day, entry, f_type),
-            FilterExpression::Nor(a, b) => !(a.evaluate(day, entry, f_type) || b.evaluate(day, entry, f_type)),
-            FilterExpression::Nand(a, b) => !(a.evaluate(day, entry, f_type) && b.evaluate(day, entry, f_type)),
-            FilterExpression::Xnor(a, b) => !(a.evaluate(day, entry, f_type) ^ b.evaluate(day, entry, f_type)),
-        }
-    }
-}
-
-// PARSING
 #[derive(Debug, Clone)]
 enum Token {
     OpenParen,
     CloseParen,
     Operator(String),
     FilterExpression(String),
+}
+
+pub fn parse(filter_type: &FilterType, input: &str) -> Option<FilterExpression>
+{
+    // First, attempt to parse normally
+    let mut result = parse_tokenized(filter_type, input);
+
+    // If that fails, wrap in {} and try again -> shortcut so that you do not need to wrap single
+    // filter command expressions in {} manually.
+    if result.is_none() && !input.contains("{") && !input.contains("}")
+    {
+        let mut wrapped_input = String::from("{");
+        wrapped_input.push_str(input);
+        wrapped_input.push_str("}");
+
+        result = parse_tokenized(filter_type, wrapped_input.as_str())
+    }
+
+    result
+}
+
+fn parse_tokenized(filter_type: &FilterType, input: &str) -> Option<FilterExpression>
+{
+    let tokens = tokenize(input);
+    let postfix = infix_to_postfix(tokens);
+    build_logical_filter(postfix, filter_type)
 }
 
 fn tokenize(input: &str) -> Vec<Token>
@@ -184,8 +172,8 @@ fn build_logical_filter(tokens: Vec<Token>, filter_type: &FilterType) -> Option<
         {
             Token::FilterExpression(expr) =>
                 {
-                    let filter_command = filter_parser::parse(filter_type, expr)?;
-                    stack.push(FilterExpression::Single(filter_command));
+                    let filter_command = command_parser::parse(filter_type, expr)?;
+                    stack.push(FilterExpression::SingleCommand(filter_command));
                 },
             Token::Operator(op) =>
                 {
@@ -215,30 +203,4 @@ fn build_logical_filter(tokens: Vec<Token>, filter_type: &FilterType) -> Option<
     }
 
     stack.pop()
-}
-
-pub fn parse(filter_type: &FilterType, input: &str) -> Option<FilterExpression>
-{
-    // First, attempt to parse normally
-    let mut result = parse_tokenized(filter_type, input);
-
-    // If that fails, wrap in {} and try again -> shortcut so that you do not need to wrap single
-    // filter command expressions in {} manually.
-    if result.is_none() && !input.contains("{") && !input.contains("}")
-    {
-        let mut wrapped_input = String::from("{");
-        wrapped_input.push_str(input);
-        wrapped_input.push_str("}");
-
-        result = parse_tokenized(filter_type, wrapped_input.as_str())
-    }
-
-    result
-}
-
-fn parse_tokenized(filter_type: &FilterType, input: &str) -> Option<FilterExpression>
-{
-    let tokens = tokenize(input);
-    let postfix = infix_to_postfix(tokens);
-    build_logical_filter(postfix, filter_type)
 }

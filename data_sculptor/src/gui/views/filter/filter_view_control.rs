@@ -3,7 +3,7 @@
 use iced::{Command};
 use crate::gui::gui_message::GUIMessage;
 use crate::core::filters::filter::{FilterType, Filter, FilterID};
-use crate::core::filters::{filter_expression};
+use crate::core::filters::{expression_parser};
 use indexmap::IndexMap;
 
 /// View for displaying and setting filters for the data list
@@ -72,7 +72,7 @@ impl FilterView
 
     fn add_filter(&mut self) -> Command<GUIMessage>
     {
-        let parse_result = filter_expression::parse(&self.filter_type, self.input_value.as_str());
+        let parse_result = expression_parser::parse(&self.filter_type, self.input_value.as_str());
         if let Some(filter_expression) = parse_result
         {
             self.filters.insert
@@ -81,7 +81,8 @@ impl FilterView
                 Filter
                 {
                     title: self.input_value.clone(),
-                    expression: filter_expression
+                    expression: filter_expression,
+                    filter_type: self.filter_type.clone()
                 }
             );
             self.input_value.clear();
