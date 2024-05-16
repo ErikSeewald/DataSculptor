@@ -19,4 +19,5 @@ pub enum GUIMessage
     ClickFilter(FilterID),
     FilterInputChanged(String),
     AddFilter,
+    DeleteFilter(FilterID),
 }

@@ -87,8 +87,8 @@ impl StyleSheet for FilterButtonTheme
     }
 }
 
-pub struct FilterButtonSelectedTheme;
-impl StyleSheet for FilterButtonSelectedTheme
+pub struct DeleteButtonTheme;
+impl StyleSheet for DeleteButtonTheme
 {
     type Style = Theme;
 
@@ -96,7 +96,7 @@ impl StyleSheet for FilterButtonSelectedTheme
     {
         Appearance
         {
-            background: Some(Background::Color(Color::from_rgb(0.4, 0.2, 0.2))),
+            background: Some(Background::Color(Color::from_rgb(0.6, 0.25, 0.25))),
             text_color: Color::WHITE,
             border: Border
             {
@@ -112,7 +112,7 @@ impl StyleSheet for FilterButtonSelectedTheme
     {
         Appearance
         {
-            background: Some(Background::Color(Color::from_rgb(0.45, 0.2, 0.2))),
+            background: Some(Background::Color(Color::from_rgb(0.75, 0.25, 0.25))),
             ..self.active(_style)
         }
     }
@@ -121,7 +121,7 @@ impl StyleSheet for FilterButtonSelectedTheme
     {
         Appearance
         {
-            background: Some(Background::Color(Color::from_rgb(0.5, 0.2, 0.2))),
+            background: Some(Background::Color(Color::from_rgb(0.8, 0.25, 0.25))),
             ..self.active(_style)
         }
     }

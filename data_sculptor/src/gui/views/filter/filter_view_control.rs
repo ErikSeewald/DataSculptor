@@ -11,7 +11,6 @@ pub struct FilterView
 {
     pub filter_type: FilterType,
     pub filters: IndexMap<FilterID, Filter>, // index map to preserve order in list display
-    pub selected_filter: Option<FilterID>,
     pub(crate) input_value: String,
 }
 
@@ -23,7 +22,6 @@ impl From<FilterType> for FilterView
         {
             filter_type,
             filters: IndexMap::new(),
-            selected_filter: None,
             input_value: String::new(),
         }
     }
@@ -40,23 +38,20 @@ impl FilterView
             GUIMessage::ClickFilter(filter_id) => {self.click_filter(filter_id)}
             GUIMessage::FilterInputChanged(input) => {self.update_input(input)}
             GUIMessage::AddFilter => {self.add_filter()}
+            GUIMessage::DeleteFilter(filter_id) => {self.delete_filter(filter_id)}
             _ => {Command::none()}
         }
     }
 
     fn click_filter(&mut self, filter_id: FilterID) -> Command<GUIMessage>
     {
-        if let Some(selected_id) = &self.selected_filter
-        {
-            if selected_id == &filter_id
-            {
-                self.filters.shift_remove(selected_id);
-                self.selected_filter = None;
-                return Command::none();
-            }
-        }
+        self.input_value = self.filters.get(&filter_id).unwrap().title.clone();
+        Command::none()
+    }
 
-        self.selected_filter = Some(filter_id);
+    fn delete_filter(&mut self, filter_id: FilterID) -> Command<GUIMessage>
+    {
+        self.filters.shift_remove(&filter_id);
         Command::none()
     }
 
@@ -94,6 +89,6 @@ impl FilterView
     /// Handles updating variables when the [`FilterView`] is exited.
     pub fn exit_view(&mut self)
     {
-        self.selected_filter = None;
+
     }
 }

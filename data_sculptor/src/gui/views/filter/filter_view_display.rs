@@ -72,30 +72,26 @@ impl FilterView
                 current_row = Row::new().spacing(20)
             }
 
-            // FILTER BUTTON
-            let mut draw_as_selected = false;
-            if let Some(selected_filter) = &self.selected_filter
-            {
-                draw_as_selected = selected_filter == id;
-            }
+            // FILTER BOX
+            let delete_button = Button::new("X")
+                .style(theme::Button::custom(gui_theme::DeleteButtonTheme))
+                .padding([7, 10])
+                .width(Length::Fixed(30.0))
+                .on_press(GUIMessage::DeleteFilter(id.clone()));
 
-            let mut filter_button: Button<GUIMessage> =
-                if draw_as_selected
-                {
-                    Button::new("Click again to delete")
-                        .style(theme::Button::custom(gui_theme::FilterButtonSelectedTheme))
-                }
-                else
-                {
-                    Button::new(filter.title.as_str())
-                        .style(theme::Button::custom(gui_theme::FilterButtonTheme))
-                };
-            filter_button = filter_button
+            let filter_button = Button::new(filter.title.as_str())
+                .style(theme::Button::custom(gui_theme::FilterButtonTheme))
+                .clip(true)
                 .padding(20)
                 .width(Length::Fixed(250.0))
                 .on_press(GUIMessage::ClickFilter(id.clone()));
 
-            current_row = current_row.push(filter_button);
+            let filter_box = Row::new()
+                .spacing(0)
+                .push(filter_button)
+                .push(delete_button);
+
+            current_row = current_row.push(filter_box);
             filter_index += 1;
         }
         filter_column = filter_column.push(current_row);
