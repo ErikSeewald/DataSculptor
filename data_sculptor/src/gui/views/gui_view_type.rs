@@ -4,5 +4,6 @@
 /// Each value directly corresponds to a 'views' submodule.
 pub enum GUIViewType
 {
-    ListLoadView
+    ListLoadView,
+    FilterView
 }

@@ -206,10 +206,8 @@ fn infix_to_postfix(tokens: Vec<Token>) -> Vec<Token>
                     if logical_precedence(&op) <= logical_precedence(&top_op)
                     {
                         output.push(ops_stack.pop().unwrap());
-                    } else
-                    {
-                        break;
                     }
+                    else {break;}
                 }
                 ops_stack.push(Token::Operator(op));
             },

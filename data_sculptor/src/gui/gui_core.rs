@@ -5,6 +5,7 @@
 
 use iced::{Application, Command, Element, Settings, Theme};
 use std::sync::{Arc, Mutex};
+use iced::widget::Column;
 use crate::core::data_manager::DataManager;
 use crate::gui::views::gui_view_type::GUIViewType;
 use crate::gui::views::list::list_view_control::ListView;
@@ -58,6 +59,7 @@ impl Application for MainGUI
         match self.cur_view
         {
             GUIViewType::ListLoadView => {self.list_load_view.update(message, &self.data_manager)}
+            _ => {Command::none()}
         }
     }
 
@@ -66,6 +68,7 @@ impl Application for MainGUI
         match self.cur_view
         {
             GUIViewType::ListLoadView => {self.list_load_view.view(&self.data_manager)}
+            _ => {Column::new().into()}
         }
     }
 
