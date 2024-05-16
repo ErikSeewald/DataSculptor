@@ -2,7 +2,7 @@ mod data_containers_tests;
 
 mod load_data_str_tests
 {
-    use std::collections::HashMap;
+    use indexmap::IndexMap;
     use data_sculptor::file_io::json_handler::load_data_str;
 
     #[test]
@@ -97,7 +97,7 @@ mod load_data_str_tests
         let days = load_data_str(json_str).unwrap();
         for day in days
         {
-            let entries: HashMap<String, String> = day.entries;
+            let entries: IndexMap<String, String> = day.entries;
             assert_eq!(entries.len(), 2);
 
             assert_eq!(entries.get("something").unwrap().as_str(), "1");

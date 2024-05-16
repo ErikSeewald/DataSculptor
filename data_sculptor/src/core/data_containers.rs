@@ -1,9 +1,10 @@
 //! Specifies the main data structures and handles parsing between them.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashSet};
 use std::fmt::{Display, Formatter};
 use chrono::{NaiveDate};
 use std::cmp::Eq;
+use indexmap::IndexMap;
 
 pub const DATE_FORMAT: &str =  "%Y-%m-%d";
 
@@ -11,7 +12,7 @@ pub const DATE_FORMAT: &str =  "%Y-%m-%d";
 pub struct DayDataUnparsed
 {
     pub date: String,
-    pub entries: HashMap<String, String>
+    pub entries: IndexMap<String, String>
 }
 
 /// Struct holding data for a single day parsed into proper data structures.
@@ -19,7 +20,7 @@ pub struct DayDataUnparsed
 pub struct DayDataParsed
 {
     pub date: DateKey,
-    pub entries: HashMap<EntryKey, EntryValue>
+    pub entries: IndexMap<EntryKey, EntryValue>
 }
 
 /// Date struct that serves as the identifier for a [`DayDataParsed`] instance.
@@ -83,7 +84,7 @@ pub fn parse(unparsed: DayDataUnparsed) -> Result<DayDataParsed, ParseError>
     }
 
     // ENTRIES
-    let mut entries: HashMap<EntryKey, EntryValue> = HashMap::new();
+    let mut entries: IndexMap<EntryKey, EntryValue> = IndexMap::new();
     for (key, value) in unparsed.entries
     {
         entries.insert(EntryKey {title: key }, EntryValue{string_value: value});

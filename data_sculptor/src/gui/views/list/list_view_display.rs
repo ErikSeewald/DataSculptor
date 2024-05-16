@@ -117,15 +117,21 @@ impl ListView
                     continue; // do not show keys that are filtered out
                 }
 
+                let key_text = Text::new(format!("        {}:", key.title));
+                let value_text = Text::new(format!("   \"{}\"", value.string_value))
+                    .style(value_color);
+                let value_container = Container::new(value_text); // For wrapping
+
                 entries_column = entries_column.push
                 (
                     Row::new()
-                        .push(Text::new(format!("        {}:", key.title)))
-                        .push(Text::new(format!("   \"{}\"", value.string_value)).style(value_color))
+                        .push(key_text)
+                        .push(value_container)
                 );
             }
             column = column.push(entries_column);
         }
+
 
         Scrollable::new
             (

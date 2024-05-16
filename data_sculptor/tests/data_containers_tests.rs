@@ -1,7 +1,7 @@
 mod parse_tests
 {
-    use std::collections::HashMap;
     use chrono::NaiveDate;
+    use indexmap::IndexMap;
     use data_sculptor::core::data_containers::{DATE_FORMAT, DateKey, DayDataUnparsed, EntryKey, EntryValue, parse, ParseError};
 
     #[test]
@@ -12,7 +12,7 @@ mod parse_tests
         for date in invalid_dates
         {
             let parse = parse(
-                DayDataUnparsed{date: date.to_string(), entries: HashMap::new() });
+                DayDataUnparsed{date: date.to_string(), entries: IndexMap::new() });
 
             assert_eq!(parse.unwrap_err(), ParseError::InvalidDate(date.to_string()));
         }
@@ -22,7 +22,7 @@ mod parse_tests
     fn test_parse_valid()
     {
         let date: String = String::from("2024-02-02");
-        let mut entries: HashMap<String, String> = HashMap::new();
+        let mut entries: IndexMap<String, String> = IndexMap::new();
         entries.insert(String::from("key :)"), String::from("value :)"));
 
         let parse = parse(DayDataUnparsed{date: date.clone(), entries: entries.clone()});
@@ -33,7 +33,7 @@ mod parse_tests
                        naive_date: NaiveDate::parse_from_str(&date, DATE_FORMAT).unwrap(),
                        date_string: date});
 
-        let mut valid_entries: HashMap<EntryKey, EntryValue> = HashMap::new();
+        let mut valid_entries: IndexMap<EntryKey, EntryValue> = IndexMap::new();
         valid_entries.insert(
             EntryKey{title: String::from("key :)")},
             EntryValue{string_value: String::from("value :)")}
@@ -46,7 +46,7 @@ mod parse_tests
 
 mod parse_and_sort_tests
 {
-    use std::collections::HashMap;
+    use indexmap::IndexMap;
     use data_sculptor::core::data_containers::{DayDataParsed, DayDataUnparsed, parse, parse_and_sort_by_date, ParseError};
 
     #[test]
@@ -61,7 +61,7 @@ mod parse_and_sort_tests
     #[test]
     fn test_valid_vec()
     {
-        let mut entries: HashMap<String, String> = HashMap::new();
+        let mut entries: IndexMap<String, String> = IndexMap::new();
         entries.insert(String::from("some"), String::from("thing"));
         entries.insert(String::from("some other"), String::from("thing"));
 
@@ -88,7 +88,7 @@ mod parse_and_sort_tests
     #[test]
     fn test_shared_dates_vec()
     {
-        let mut entries: HashMap<String, String> = HashMap::new();
+        let mut entries: IndexMap<String, String> = IndexMap::new();
         entries.insert(String::from("some"), String::from("thing"));
         entries.insert(String::from("some other"), String::from("thing"));
 
@@ -106,11 +106,11 @@ mod parse_and_sort_tests
     {
         let vec: Vec<DayDataUnparsed> = vec!
         [
-            DayDataUnparsed{date: String::from("WRONG"), entries: HashMap::new()},
+            DayDataUnparsed{date: String::from("WRONG"), entries: IndexMap::new()},
         ];
 
         let error = parse(
-            DayDataUnparsed{date: String::from("WRONG"), entries: HashMap::new()})
+            DayDataUnparsed{date: String::from("WRONG"), entries: IndexMap::new()})
             .unwrap_err();
         assert_eq!(parse_and_sort_by_date(vec).unwrap_err(), error);
     }
