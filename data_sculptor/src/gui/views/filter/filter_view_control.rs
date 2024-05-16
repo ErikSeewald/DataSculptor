@@ -85,10 +85,4 @@ impl FilterView
 
         Command::none()
     }
-
-    /// Handles updating variables when the [`FilterView`] is exited.
-    pub fn exit_view(&mut self)
-    {
-
-    }
 }

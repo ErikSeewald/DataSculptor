@@ -111,11 +111,6 @@ impl ListView
             return Command::none()
         }
 
-        if let Some(filter_view_type) = &self.opened_filter_view
-        {
-            self.filter_views.get_mut(filter_view_type).unwrap().exit_view();
-        }
-
         self.opened_filter_view = None;
         Command::none()
     }

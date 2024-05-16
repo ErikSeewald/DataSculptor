@@ -31,7 +31,7 @@ impl Keywords
 /// Tries to parse the given input string to a [`FilterCommand`]
 ///
 /// # Returns
-/// - `Some([`FilterCommand`])` if the command was successfully parsed
+/// - `Some`([`FilterCommand`]) if the command was successfully parsed
 /// - `None` if parsing was unsuccessful
 pub fn parse(filter_type: &FilterType, input: String,) -> Option<FilterCommand>
 {
