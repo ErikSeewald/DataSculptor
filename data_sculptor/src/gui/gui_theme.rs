@@ -1,6 +1,6 @@
 //! Module defining the themes applied in the data_sculptor gui
 
-use iced::{Border, Color, Theme};
+use iced::{Border, Color, Shadow, Theme, Vector};
 use iced::Background;
 use iced::border::Radius;
 use iced::widget::button::{Appearance, StyleSheet};
@@ -23,6 +23,12 @@ impl StyleSheet for ButtonTheme
                 color: Color::from_rgb(0.1, 0.4, 0.25),
                 width: 0.0,
                 radius: Radius::from(2),
+            },
+            shadow: Shadow
+            {
+                color: Color::from_rgb(0.10, 0.14, 0.10),
+                offset: Vector::new(1.0, 1.0),
+                blur_radius: 8.0,
             },
             ..Default::default()
         }
@@ -64,6 +70,12 @@ impl StyleSheet for FilterButtonTheme
                 width: 0.0,
                 radius: Radius::from(2),
             },
+            shadow: Shadow
+            {
+                color: Color::from_rgb(0.06, 0.12, 0.06),
+                offset: Vector::new(2.0, 2.0),
+                blur_radius: 12.0,
+            },
             ..Default::default()
         }
     }
@@ -104,6 +116,12 @@ impl StyleSheet for DeleteButtonTheme
                 width: 0.0,
                 radius: Radius::from(2),
             },
+            shadow: Shadow
+            {
+                color: Color::from_rgb(0.12, 0.1, 0.06),
+                offset: Vector::new(2.0, 2.0),
+                blur_radius: 8.0,
+            },
             ..Default::default()
         }
     }
@@ -135,6 +153,11 @@ pub fn container_bar_style() -> container::Appearance
         background: Some(Background::Color(Color::from_rgb(0.2, 0.22, 0.23))),
         border: Default::default(),
         text_color: None,
-        shadow: Default::default(),
+        shadow: Shadow
+        {
+            color: Color::from_rgb(0.1, 0.1, 0.1),
+            offset: Vector::new(0.0, 1.0),
+            blur_radius: 12.0,
+        },
     }
 }

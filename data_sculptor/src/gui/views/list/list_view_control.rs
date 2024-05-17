@@ -32,7 +32,7 @@ impl Default for ListView
             filter_views: HashMap::new(),
             opened_filter_view: None
         };
-        
+
         instance.filter_views.insert(FilterType::Date, FilterView::from(FilterType::Date));
         instance.filter_views.insert(FilterType::Key, FilterView::from(FilterType::Key));
         instance.filter_views.insert(FilterType::Value, FilterView::from(FilterType::Value));
