@@ -12,6 +12,7 @@ pub enum GUIMessage
 
     // LIST VIEW
     SelectFile,
+    SaveFile,
     FileSelected(String),
     OpenFilterView(FilterType),
 

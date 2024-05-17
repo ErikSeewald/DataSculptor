@@ -1,7 +1,7 @@
 //! Module for the [`DataManager`] that sits at the core of data_sculptor.
 
 use crate::core::data_containers::{DayDataParsed, DayDataUnparsed, parse_and_sort_by_date};
-use crate::file_io::json_handler;
+use crate::file_io::data_loader;
 
 /// Struct holding and managing all parsed data for the runtime of the program.
 pub struct DataManager
@@ -19,7 +19,7 @@ impl DataManager
         self.data.clear();
 
         let data_unparsed: Vec<DayDataUnparsed>;
-        match json_handler::load_data_file(file_path)
+        match data_loader::load_data_file(file_path)
         {
             Ok(data) => {data_unparsed = data;}
             Err(e) => {return (false, e.to_string());}

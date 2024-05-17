@@ -26,7 +26,7 @@ impl StyleSheet for ButtonTheme
             },
             shadow: Shadow
             {
-                color: Color::from_rgb(0.10, 0.14, 0.10),
+                color: Color::from_rgb(0.12, 0.15, 0.12),
                 offset: Vector::new(1.0, 1.0),
                 blur_radius: 8.0,
             },
@@ -72,7 +72,7 @@ impl StyleSheet for FilterButtonTheme
             },
             shadow: Shadow
             {
-                color: Color::from_rgb(0.06, 0.12, 0.06),
+                color: Color::from_rgb(0.08, 0.11, 0.08),
                 offset: Vector::new(2.0, 2.0),
                 blur_radius: 12.0,
             },
@@ -155,9 +155,9 @@ pub fn container_bar_style() -> container::Appearance
         text_color: None,
         shadow: Shadow
         {
-            color: Color::from_rgb(0.1, 0.1, 0.1),
+            color: Color::from_rgb(0.11, 0.11, 0.11),
             offset: Vector::new(0.0, 1.0),
-            blur_radius: 12.0,
+            blur_radius: 10.0,
         },
     }
 }

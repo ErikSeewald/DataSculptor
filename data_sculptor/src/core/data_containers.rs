@@ -24,16 +24,17 @@ pub struct DayDataParsed
 }
 
 /// Date struct that serves as the identifier for a [`DayDataParsed`] instance.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct DateKey
 {
     pub naive_date: NaiveDate,
     pub date_string: String
 }
 
+
 /// Struct that serves as the identifier for a single [`EntryValue`].
 /// Usually a descriptive title.
-#[derive(Eq, Hash, PartialEq, Debug)]
+#[derive(Eq, Hash, PartialEq, Debug, Clone)]
 pub struct EntryKey
 {
     pub title: String
@@ -43,7 +44,7 @@ pub struct EntryKey
 /// Can optionally hold additional parsed utility values outside its basic String value if
 /// that behavior has been implemented for data of the corresponding [`EntryKey`].
 /// These additional values can then be used to display and modify the data more dynamically.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct EntryValue
 {
     pub string_value: String

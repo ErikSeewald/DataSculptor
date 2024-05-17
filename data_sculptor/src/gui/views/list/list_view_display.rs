@@ -3,9 +3,9 @@
 use std::sync::{Arc, Mutex};
 use iced::{Color, Element, Length, theme};
 use iced::widget::{button, Column, Container, Row, Scrollable, Space, Text};
-use crate::core::data_containers::{DayDataParsed, EntryKey};
 use crate::core::data_manager::DataManager;
-use crate::core::filters::filter::{EvalData, FilterType};
+use crate::core::filters::filter;
+use crate::core::filters::filter::{FilterType};
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::gui_theme;
 use crate::gui::views::list::list_view_control::ListView;
@@ -18,7 +18,7 @@ impl ListView
         // SHOW FILTER VIEW IF ONE IS OPENED
         if let Some(filter_view) = &self.opened_filter_view
         {
-            return self.filter_views.get(filter_view).unwrap().view();
+            return self.get_filter_view(filter_view).view();
         }
 
         //TOP ROW
@@ -47,6 +47,13 @@ impl ListView
             .push
             (
                 Space::with_width(Length::FillPortion(10))
+            )
+            .push
+            (
+                button("Save as")
+                    .on_press(GUIMessage::SaveFile)
+                    .padding(10)
+                    .style(theme::Button::custom(gui_theme::ButtonTheme))
             )
             .push
             (
@@ -92,9 +99,13 @@ impl ListView
 
         let mut column: Column<GUIMessage> = Column::new().spacing(10);
 
+        let date_filters = self.get_filters(&FilterType::Date);
+        let key_filters = self.get_filters(&FilterType::Key);
+        let value_filters = self.get_filters(&FilterType::Value);
+
         for day in &data_manager.lock().unwrap().data
         {
-            if !self.filter_day(&day)
+            if !filter::filter_day(&day, date_filters, value_filters)
             {
                 continue; // skip filtered days (based on date and value filters)
             }
@@ -112,7 +123,7 @@ impl ListView
             let mut entries_column = Column::new().spacing(10);
             for (key, value) in &day.entries
             {
-                if !self.filter_key(day, key)
+                if !filter::filter_key(day, key, key_filters)
                 {
                     continue; // do not show keys that are filtered out
                 }
@@ -140,68 +151,6 @@ impl ListView
                     .center_x()
             )
             .into()
-    }
-
-    /// Runs the given [`DayDataParsed`] through all currently active
-    /// filters and returns whether it is valid to show.
-    /// This is the case if:
-    ///
-    /// 1. The date matches the date filter condition
-    ///
-    /// 2. The values match the value filter condition
-    ///
-    /// This means we filter out days completely through date and value filters,
-    /// meanwhile the key filters only filter which key value pairs are shown.
-    fn filter_day(&self, day: &DayDataParsed) -> bool
-    {
-        // DATE
-        if let Some((key, _)) = day.entries.iter().next()
-        {
-            let data = EvalData{day, key, filter_type: &FilterType::Date};
-            for (_, filter) in &self.filter_views.get(&FilterType::Date).unwrap().filters
-            {
-                if !filter.expression.evaluate(&data)
-                {
-                    return false;
-                }
-            }
-        }
-
-        for (key, _) in &day.entries
-        {
-            let data = EvalData{day, key, filter_type: &FilterType::Value};
-
-            // VALUE
-            for (_, filter) in &self.filter_views.get(&FilterType::Value).unwrap().filters
-            {
-                if !filter.expression.evaluate(&data)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /// Runs the given [`EntryKey`] through all currently active key
-    /// filters and returns whether its key is valid under at least one filter condition.
-    fn filter_key(&self, day: &DayDataParsed, key: &EntryKey) -> bool
-    {
-        if self.filter_views.get(&FilterType::Key).unwrap().filters.is_empty()
-        {
-            return true;
-        }
-
-        let data = EvalData{day, key, filter_type: &FilterType::Key};
-        for (_, filter) in &self.filter_views.get(&FilterType::Key).unwrap().filters
-        {
-            if filter.expression.evaluate(&data)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     /// Builds the message container with the correct error message based on the state

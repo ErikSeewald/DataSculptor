@@ -3,7 +3,7 @@ mod data_containers_tests;
 mod load_data_str_tests
 {
     use indexmap::IndexMap;
-    use data_sculptor::file_io::json_handler::load_data_str;
+    use data_sculptor::file_io::data_loader::load_data_str;
 
     #[test]
     fn test_result_dates()

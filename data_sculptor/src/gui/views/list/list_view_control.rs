@@ -1,10 +1,11 @@
 //! Module implementing the control functions for the [`ListView`]
 
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use iced::{Command};
+use indexmap::IndexMap;
 use crate::core::data_manager::DataManager;
-use crate::core::filters::filter::{FilterType};
+use crate::core::filters::filter::{Filter, FilterID, FilterType};
+use crate::file_io::{data_writer, file_dialogs};
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::views::filter::filter_view_control::FilterView;
 
@@ -16,7 +17,7 @@ pub struct ListView
     pub loaded_valid_file: bool,
     pub load_error_msg: String,
     pub loading_file: bool,
-    pub(crate) filter_views: HashMap<FilterType, FilterView>,
+    pub filter_views: [FilterView; 3],
     pub(crate) opened_filter_view: Option<FilterType>
 }
 
@@ -24,20 +25,19 @@ impl Default for ListView
 {
     fn default() -> Self
     {
-        let mut instance = Self
+        Self
         {
             loaded_valid_file: true,
             load_error_msg: "".to_string(),
             loading_file: false,
-            filter_views: HashMap::new(),
+            filter_views:
+            [
+                FilterView::from(FilterType::Date),
+                FilterView::from(FilterType::Key),
+                FilterView::from(FilterType::Value)
+            ],
             opened_filter_view: None
-        };
-
-        instance.filter_views.insert(FilterType::Date, FilterView::from(FilterType::Date));
-        instance.filter_views.insert(FilterType::Key, FilterView::from(FilterType::Key));
-        instance.filter_views.insert(FilterType::Value, FilterView::from(FilterType::Value));
-
-        return instance;
+        }
     }
 }
 
@@ -47,14 +47,14 @@ impl ListView
     // UPDATE
     pub fn update(&mut self, message: GUIMessage, dm: &Arc<Mutex<DataManager>>) -> Command<GUIMessage>
     {
-        if let Some(filter_view) = &self.opened_filter_view
+        if let Some(filter_view) = self.opened_filter_view.clone()
         {
             match message
             {
                 GUIMessage::ReturnToView(view_name) => {self.return_to_view(view_name)}
                 _ =>
                     {
-                        self.filter_views.get_mut(filter_view).unwrap().update(message)
+                        self.get_filter_view_mut(&filter_view).update(message)
                     }
             }
         }
@@ -64,6 +64,7 @@ impl ListView
             match message
             {
                 GUIMessage::SelectFile => {self.select_file()}
+                GUIMessage::SaveFile => {self.save_file(dm)}
                 GUIMessage::FileSelected(path) => {self.file_selected(path, dm)}
                 GUIMessage::OpenFilterView(filter_type) => {self.open_filter_view(filter_type)}
                 _ => {Command::none()}
@@ -73,10 +74,7 @@ impl ListView
 
     fn select_file(&mut self) -> Command<GUIMessage>
     {
-        let file = rfd::FileDialog::new().pick_file();
-        let path = file.map(|f| f.as_path().to_string_lossy().into_owned());
-
-        if let Some(file_path) = path
+        if let Some(file_path) = file_dialogs::pick_file()
         {
             self.loading_file = true;
 
@@ -86,6 +84,15 @@ impl ListView
 
             Command::perform(async move { file_path }, GUIMessage::FileSelected)
         } else { Command::none() }
+    }
+
+    fn save_file(&mut self, dm: &Arc<Mutex<DataManager>>) -> Command<GUIMessage>
+    {
+        if let Some(file_path) = file_dialogs::save_json_file()
+        {
+            data_writer::write_data_filtered(file_path, &dm.lock().unwrap().data, &self);
+        }
+        Command::none()
     }
 
     fn file_selected(&mut self, path: String, dm: &Arc<Mutex<DataManager>>) -> Command<GUIMessage>
@@ -113,6 +120,31 @@ impl ListView
 
         self.opened_filter_view = None;
         Command::none()
+    }
+
+    pub fn get_filters(&self, filter_type: &FilterType) -> &IndexMap<FilterID, Filter>
+    {
+        &self.get_filter_view(filter_type).filters
+    }
+
+    pub fn get_filter_view(&self, filter_type: &FilterType) -> & FilterView
+    {
+        match filter_type
+        {
+            FilterType::Date => &self.filter_views[0],
+            FilterType::Key => &self.filter_views[1],
+            FilterType::Value => &self.filter_views[2],
+        }
+    }
+
+    pub fn get_filter_view_mut(&mut self, filter_type: &FilterType) -> &mut FilterView
+    {
+        match filter_type
+        {
+            FilterType::Date => &mut self.filter_views[0],
+            FilterType::Key => &mut self.filter_views[1],
+            FilterType::Value => &mut self.filter_views[2],
+        }
     }
 
     pub fn view_title() -> &'static str
