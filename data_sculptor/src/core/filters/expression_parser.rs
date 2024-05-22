@@ -4,7 +4,7 @@ use std::iter::Peekable;
 use std::str::Chars;
 use crate::core::filters::command_parser;
 use crate::core::filters::filter::{FilterType};
-use crate::core::filters::filter::FilterExpression;
+use crate::core::filters::filter_expression::FilterExpression;
 
 /// Enum representing a single token within an expression [`String`]
 #[derive(Debug, Clone)]
