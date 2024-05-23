@@ -1,4 +1,6 @@
 //! Module for parsing [`String`]s into [`FilterCommand`]s.
+use chrono::NaiveDate;
+use crate::core::data_containers::{DATE_FORMAT};
 use crate::core::filters::filter::FilterType;
 use crate::core::filters::filter_commands::FilterCommand;
 
@@ -9,7 +11,8 @@ pub enum Keywords
     Contains,
     KeyValueContains,
     NumOp,
-    KeyValueNumOp
+    KeyValueNumOp,
+    Date
 }
 
 impl Keywords
@@ -19,10 +22,11 @@ impl Keywords
     {
         match &self
         {
-            Keywords::Contains => {"contains"},
-            Keywords::KeyValueContains => {"kv-contains"},
-            Keywords::NumOp => {"numop"},
-            Keywords::KeyValueNumOp => {"kv-numop"}
+            Keywords::Contains => "contains",
+            Keywords::KeyValueContains => "kv-contains",
+            Keywords::NumOp => "numop",
+            Keywords::KeyValueNumOp => "kv-numop",
+            Keywords::Date => "date"
         }
     }
 
@@ -69,6 +73,14 @@ pub fn parse(filter_type: &FilterType, input: String,) -> Option<FilterCommand>
         if filter_type == &FilterType::Value
         {
             return parse_kv_numop(&input[Keywords::KeyValueNumOp.cmd_len()..]);
+        }
+    }
+
+    if input.starts_with(Keywords::Date.cmd_str())
+    {
+        if filter_type == &FilterType::Date
+        {
+            return parse_date_op(&input[Keywords::Date.cmd_len()..]);
         }
     }
 
@@ -164,4 +176,31 @@ fn parse_kv_numop(input: &str) -> Option<FilterCommand>
 
     let (op, num) = get_numop_params(&input[end + 1..])?;
     return Some(FilterCommand::KeyValueNumOp(key, op, num));
+}
+
+fn parse_date_op(input: &str) -> Option<FilterCommand>
+{
+    let start: usize;
+    let mut op = String::new();
+
+    if let Some(index) = input.find("before")
+    {
+        start = index + 6;
+        op.push_str("before");
+    }
+
+    else if let Some(index) = input.find("after")
+    {
+        start = index + 5;
+        op.push_str("after");
+    }
+
+    else
+    {
+        return None;
+    }
+
+    let date_string = get_quotation_string_and_verify_is_last(&input[start..])?;
+    let date = NaiveDate::parse_from_str(date_string.as_str(), DATE_FORMAT).ok()?;
+    return Some(FilterCommand::Date(op, date));
 }

@@ -1,4 +1,5 @@
 use std::hash::{Hash, Hasher};
+use chrono::NaiveDate;
 use crate::core::filters::command_parser;
 use crate::core::filters::filter_expression::EvalData;
 
@@ -44,7 +45,18 @@ pub enum FilterCommand
     /// # Examples
     /// - Numop('speed', '<', 12) will return true if the value corresponding to 'speed' parses
     /// successfully and is less than 12
-    KeyValueNumOp(String, String, f32)
+    KeyValueNumOp(String, String, f32),
+
+
+    /// Does the given date related operation to the value.
+    ///
+    /// # Args (index order)
+    /// - `op`: The date operation. Supported: 'before' and 'after'
+    /// - `date`: Date to compare the value to
+    ///
+    /// # Examples
+    /// - Date('before', <NaiveDate>) will return true if the value date is before the given date
+    Date(String, NaiveDate)
 }
 
 impl Hash for FilterCommand
@@ -78,6 +90,13 @@ impl Hash for FilterCommand
                     k.hash(state);
                     o.hash(state);
                     f.to_bits().hash(state)
+                },
+
+            FilterCommand::Date(o, d) =>
+                {
+                  command_parser::Keywords::Date.hash(state);
+                    o.hash(state);
+                    d.hash(state)
                 }
         }
     }
@@ -103,6 +122,11 @@ impl FilterCommand
                 {
                     num_op(&data.day.date.date_string, op, num)
                 },
+
+            FilterCommand::Date(op, date) =>
+                {
+                    date_op(&data.day.date.naive_date, op, date)
+                }
 
             _ => {true}
         }
@@ -171,13 +195,33 @@ impl FilterCommand
     }
 }
 
+/// Does the given date related operation to the value.
+/// Returns false if the operation is invalid.
+///
+/// # Args
+/// - `value`: The date value to do the operation on
+/// - `op`: The date operation. Supported: 'before' and 'after'
+/// - `date`: Date to compare the value to
+///
+/// # Examples
+/// - Date('before', <NaiveDate>) will return true if the value date is before the given date
+fn date_op(value: &NaiveDate, op: &String, date: &NaiveDate) -> bool
+{
+    match op.as_str()
+    {
+        "before" => value < date,
+        "after" => value > date,
+        _ => false
+    }
+}
+
 /// Tries to parse the value to a number by removing all non number characters
 /// and does an operation on it.  If it fails to parse, false is returned.
 /// If it parses successfully, the number is compared to the given number with the given
 /// operation.
 ///
-/// # Args (index order)
-/// - 'value': The value to parse
+/// # Args
+/// - `value`: The value to parse
 /// - `op`: String representation of an operator. Supported: '>', '<'
 /// - `num`: Number to compare the value to
 fn num_op(value: &String, op: &String, num: &f32) -> bool
