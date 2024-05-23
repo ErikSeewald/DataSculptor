@@ -60,6 +60,7 @@ Filter commands are specific ways for you to filter the data. They are wrapped i
 | **kv-contains** | 'Key Value Contains' checks if the value corresponding to the given key contains the given string | `{kv-contains "<key>" "<keyword>}"` | `{contains "food" "tomato"}` is true if the value for 'food' contains 'tomato'. | Value             |
 | **numop** | Tries to parse the value to a number and then compares it to the number you give it. Defaults to false if parsing fails. | `{numop "'>' or '<'" "<number>}"` | `{numop ">" "8.3"}` is true if the value is greater than 8.3 | Date, Key             |
 | **kv-numop** | 'Key Value Numop' does the same as 'numop' but only for the value corresponding to the given key | `{kv-numop "<key>" "'>' or '<'" "<number>}"` | `{kv-numop "speed" "<" "20"}` is true if the value for 'speed' is less than 20. | Value             |
+| **date** | Lets you set a date specific condition | `{date <'before' or 'after'> "<YYYY-MM-DD>"}"` | `{date before "2024-02-01"}` is true if the date is before february 2024 | Date             |
 
 
 #### Expression examples:
