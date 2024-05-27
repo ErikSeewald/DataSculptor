@@ -31,9 +31,8 @@ pub fn parse(filter_type: &FilterType, input: &str) -> Option<FilterExpression>
     // filter command expressions in {} manually.
     if result.is_none() && !input.contains("{") && !input.contains("}")
     {
-        let mut wrapped_input = String::from("{");
-        wrapped_input.push_str(input);
-        wrapped_input.push_str("}");
+        let mut wrapped_input = String::from("{") + input;
+        wrapped_input += "}";
 
         result = parse_tokenized(filter_type, wrapped_input.as_str())
     }

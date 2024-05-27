@@ -68,16 +68,16 @@ mod load_data_str_tests
         for i in 0..amount-1
         {
             let mut date_str: String = String::from("\"");
-            date_str.push_str(&*i.to_string());
-            date_str.push_str("\": {\"fillerdata\" : \"uuuuuuuuuuuuuuuuuuuuuuuuuuuuu\
+            date_str += &*i.to_string();
+            date_str += "\": {\"fillerdata\" : \"uuuuuuuuuuuuuuuuuuuuuuuuuuuuu\
             wqddddddwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\
             wdddddddfwqfqwfqwfqwfqwflqwkdqwkqpwokfpqwofkqopwfkwopqfkpqwkpfwqkfqkwpfkqpwfkqw\
             qwfkopqwjpdsjqwpdjqwpodkqwoslwqüpdkqwüdkqwüpdkqüwpdspwqldpqlwdüpqwldüpqlwdüqlwd\
             kqwdpqkwdpojfpqwmdpqwodmopqwdmqowpdmqwpodmqw,slwq,odjwqopdmqp,sqwdqwjfpoqwpfqpd\
-            qjfwdnmkqwmdsqwmdoqwfjnqwoidnqwoidmqwdiomqwdomqwdmqwodmqwodmqwodmqwodmwqodm\"},");
-            json_str.push_str(date_str.as_str());
+            qjfwdnmkqwmdsqwmdoqwfjnqwoidnqwoidmqwdiomqwdomqwdmqwodmqwodmqwodmqwodmwqodm\"},";
+            json_str += date_str.as_str();
         }
-        json_str.push_str(" \"last-one\": {} }");
+        json_str += " \"last-one\": {} }";
 
         let days = load_data_str(json_str.as_str()).unwrap();
         assert_eq!(days.len(), amount);

@@ -186,13 +186,13 @@ fn parse_date_op(input: &str) -> Option<FilterCommand>
     if let Some(index) = input.find("before")
     {
         start = index + 6;
-        op.push_str("before");
+        op += "before";
     }
 
     else if let Some(index) = input.find("after")
     {
         start = index + 5;
-        op.push_str("after");
+        op += "after";
     }
 
     else
