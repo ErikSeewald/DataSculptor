@@ -48,10 +48,12 @@ impl FilterView
 
         // CONSTRUCT
         Column::new()
-            .padding(20)
-            .push(Space::with_height(15))
-            .push(Row::new().push(save_button))
-            .push(Space::with_height(15))
+            .push
+            (
+                Row::new()
+                    .push(save_button)
+                    .padding(8)
+            )
             .push(input_row_container)
             .push(Space::with_height(15))
             .push(filter_list)
