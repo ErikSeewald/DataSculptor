@@ -8,8 +8,9 @@ use std::sync::{Arc, Mutex};
 use iced::widget::Column;
 use crate::core::data_manager::DataManager;
 use crate::gui::views::gui_view_type::GUIViewType;
-use crate::gui::views::list::list_view_control::ListView;
 use crate::gui::gui_message::GUIMessage;
+use crate::gui::views::list::list_view_control::ListView;
+use crate::gui::views::menu::menu_view_control::MenuView;
 
 /// Initializes the iced application using an [`Arc`] of the [`DataManager`] that is shared
 /// between all submodules of data_sculptor.
@@ -26,7 +27,8 @@ pub struct MainGUI
     pub cur_view: GUIViewType,
 
     // VIEWS
-    pub list_load_view: ListView
+    pub list_view: ListView,
+    pub menu_view: MenuView
 }
 
 impl Application for MainGUI
@@ -43,10 +45,11 @@ impl Application for MainGUI
         let instance = Self
             {
                 data_manager: flags,
-                cur_view: GUIViewType::ListLoadView,
+                cur_view: GUIViewType::MenuView,
 
                 // VIEWS
-                list_load_view: ListView::default()
+                list_view: ListView::default(),
+                menu_view: MenuView{}
             };
 
         return (instance, Command::none());
@@ -56,9 +59,32 @@ impl Application for MainGUI
 
     fn update(&mut self, message: Self::Message) -> Command<Self::Message>
     {
+        // RETURN TO MENU
+        if let GUIMessage::ReturnToView(view_name) = message
+        {
+            if view_name == MenuView::view_title()
+            {
+                self.cur_view = GUIViewType::MenuView;
+            }
+        }
+
+        // OPEN NEW VIEW
+        else if let GUIMessage::OpenView(view_name) = message
+        {
+            match view_name
+            {
+                _ if view_name == ListView::view_title() =>
+                    {self.cur_view = GUIViewType::ListView},
+
+                _ => {}
+            }
+        }
+
+        // UPDATE CURRENT VIEW
         match self.cur_view
         {
-            GUIViewType::ListLoadView => {self.list_load_view.update(message, &self.data_manager)}
+            GUIViewType::ListView => {self.list_view.update(message, &self.data_manager)}
+            GUIViewType::MenuView => {self.menu_view.update(message)}
             _ => {Command::none()}
         }
     }
@@ -67,7 +93,8 @@ impl Application for MainGUI
     {
         match self.cur_view
         {
-            GUIViewType::ListLoadView => {self.list_load_view.view(&self.data_manager)}
+            GUIViewType::ListView => {self.list_view.view(&self.data_manager)}
+            GUIViewType::MenuView => {self.menu_view.view()}
             _ => {Column::new().into()}
         }
     }

@@ -149,6 +149,6 @@ impl ListView
 
     pub fn view_title() -> &'static str
     {
-        "list_load_view"
+        "list_view"
     }
 }

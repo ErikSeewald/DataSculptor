@@ -9,6 +9,7 @@ pub enum GUIMessage
 {
     // GENERAL
     ReturnToView(&'static str),
+    OpenView(&'static str),
 
     // LIST VIEW
     SelectFile,

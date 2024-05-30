@@ -9,6 +9,7 @@ use crate::core::filters::filter::{FilterType};
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::gui_theme;
 use crate::gui::views::list::list_view_control::ListView;
+use crate::gui::views::menu::menu_view_control::MenuView;
 
 /// Implementation of the display functions for the list view
 impl ListView
@@ -23,6 +24,17 @@ impl ListView
 
         //TOP ROW
         let top_row: Element<GUIMessage> = Row::new()
+            .push
+            (
+                button("Return to menu")
+                    .on_press(GUIMessage::ReturnToView(MenuView::view_title()))
+                    .padding(10)
+                    .style(theme::Button::custom(gui_theme::ButtonTheme))
+            )
+            .padding(8).into();
+
+        //SECOND ROW
+        let second_row: Element<GUIMessage> = Row::new()
             .push
             (
                 button("Date filters")
@@ -68,7 +80,7 @@ impl ListView
             )
             .spacing(20).into();
 
-        let top_row_container = Container::new(top_row)
+        let second_row_container = Container::new(second_row)
             .padding(20)
             .style(gui_theme::container_bar_style());
 
@@ -76,8 +88,10 @@ impl ListView
         let data_list_display = self.display_list(data_manager);
 
         Column::new()
-            .push(Space::with_height(15))
-            .push(top_row_container)
+            .push(Space::with_height(3))
+            .push(top_row)
+            .push(Space::with_height(3))
+            .push(second_row_container)
             .push(Space::with_height(20))
             .push(msg_container)
             .push(data_list_display)
