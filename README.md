@@ -50,7 +50,7 @@ Logical operators are used to connect different filter expressions together. You
 | **nor**     | True if neither expression is true | `<expression1> nor <expression2>`              |
 | **xnor**     | True if both expressions have the same boolean value | `<expression1> xnor <expression2>`              |
 
-- *Do not negate logical operators using the keyword 'not'*. Just use the provided negations (e.g. 'nand', 'nor', etc.). Due to the way the postfix parser works, `{a} not and {b}` is equivalent to `not {a} and {b}`. (However, `not ({a} and {b})` is still equivalent to `{a} nand {b}`)
+- *Do not negate logical operators using the keyword 'not'*. Just use the provided negations (e.g., 'nand', 'nor', etc.). Due to the way the postfix parser works, `{a} not and {b}` is equivalent to `not {a} and {b}`. (However, `not ({a} and {b})` is still equivalent to `{a} nand {b}`)
 
 #### Filter Commands
 Filter commands are specific ways for you to filter the data. They are wrapped in curly brackets {} and can be connected with logical operators. If you do not use any logical operators, the curly brackets {} can be omitted.
