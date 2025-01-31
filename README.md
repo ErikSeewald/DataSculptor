@@ -1,6 +1,6 @@
 # DataSculptor
 
-A tool to compile and analyze data from [Eriks-Data-Collector](https://github.com/ErikSeewald/Eriks-Data-Collector).
+A tool to compile and analyze data from [Eriks-Data-Collector](https://github.com/ErikSeewald/Eriks-Data-Collector) (private).
 
 
 Can be used for other data as long as it is in the correct data format.
