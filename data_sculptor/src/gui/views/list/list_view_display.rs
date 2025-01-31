@@ -1,20 +1,20 @@
 //! Module implementing the display functions for the [`ListView`]
 
-use std::sync::{Arc, Mutex};
-use iced::{Color, Element, Length, theme};
+use std::sync::{Mutex};
+use iced::{Color, Element, Length};
 use iced::widget::{button, Column, Container, Row, Scrollable, Space, Text};
 use crate::core::data_manager::DataManager;
 use crate::core::filters::filter;
 use crate::core::filters::filter::{FilterType};
 use crate::gui::gui_message::GUIMessage;
-use crate::gui::gui_theme;
+use crate::gui::gui_style;
 use crate::gui::views::list::list_view_control::ListView;
 use crate::gui::views::menu::menu_view_control::MenuView;
 
 /// Implementation of the display functions for the list view
 impl ListView
 {
-    pub fn view<'a>(&'a self, data_manager: &'a Arc<Mutex<DataManager>>) -> Element<GUIMessage>
+    pub fn view(&self, data_manager: &Mutex<DataManager>) -> Element<GUIMessage>
     {
         // SHOW FILTER VIEW IF ONE IS OPENED
         if let Some(filter_view) = &self.opened_filter_view
@@ -29,7 +29,7 @@ impl ListView
                 button("Return to menu")
                     .on_press(GUIMessage::ReturnToView(MenuView::view_title()))
                     .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
+                    .style(gui_style::ButtonStyle::style)
             )
             .padding(8).into();
 
@@ -40,21 +40,21 @@ impl ListView
                 button("Date filters")
                     .on_press(GUIMessage::OpenFilterView(FilterType::Date))
                     .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
+                    .style(gui_style::ButtonStyle::style)
             )
             .push
             (
                 button("Key filters")
                     .on_press(GUIMessage::OpenFilterView(FilterType::Key))
                     .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
+                    .style(gui_style::ButtonStyle::style)
             )
             .push
             (
                 button("Value filters")
                     .on_press(GUIMessage::OpenFilterView(FilterType::Value))
                     .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
+                    .style(gui_style::ButtonStyle::style)
             )
             .push
             (
@@ -65,14 +65,14 @@ impl ListView
                 button("Save as")
                     .on_press(GUIMessage::SaveFile)
                     .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
+                    .style(gui_style::ButtonStyle::style)
             )
             .push
             (
                 button("Select file")
                     .on_press(GUIMessage::SelectFile)
                     .padding(10)
-                    .style(theme::Button::custom(gui_theme::ButtonTheme))
+                    .style(gui_style::ButtonStyle::style)
             )
             .push
             (
@@ -82,7 +82,7 @@ impl ListView
 
         let second_row_container = Container::new(second_row)
             .padding(20)
-            .style(gui_theme::container_bar_style());
+            .style(gui_style::container_bar_style);
 
         let msg_container = self.build_message_container();
         let data_list_display = self.display_list(data_manager);
@@ -106,7 +106,7 @@ impl ListView
     /// 2. If the *key* filter does not match at least one key filter, only the *key* is skipped
     ///
     /// 3. If the *value* filter does not match, the *whole day* is skipped
-    fn display_list(&self, data_manager: &Arc<Mutex<DataManager>>) -> Element<GUIMessage>
+    fn display_list(&self, data_manager: &Mutex<DataManager>) -> Element<GUIMessage>
     {
         let date_color = Color::new(0.4, 0.8, 0.5, 1.0);
         let value_color = Color::new(0.6, 0.8, 1.0, 1.0);
@@ -127,7 +127,7 @@ impl ListView
             // DATE
             let date_text = Text::new(day.date.date_string.clone())
                 .size(20)
-                .style(date_color);
+                .color(date_color);
 
             column = column
                 .push(Space::with_height(Length::Fixed(10.0)))
@@ -144,7 +144,7 @@ impl ListView
 
                 let key_text = Text::new(format!("        {}:", key.title));
                 let value_text = Text::new(format!("   \"{}\"", value.string_value))
-                    .style(value_color);
+                    .color(value_color);
                 let value_container = Container::new(value_text); // For wrapping
 
                 entries_column = entries_column.push
@@ -161,8 +161,7 @@ impl ListView
         Scrollable::new
             (
                 Container::new(column)
-                    .width(Length::Fill)
-                    .center_x()
+                    .center_x(Length::Fill)
             )
             .into()
     }
@@ -184,8 +183,7 @@ impl ListView
         }
 
         Container::new(msg_column)
-            .width(Length::Fill)
-            .center_x()
+            .center_x(Length::Fill)
             .into()
     }
 }
@@ -200,9 +198,9 @@ fn file_load_error(msg_column: Column<GUIMessage>, error_msg: String)
         (
             Text::new("Error while loading file:")
                 .size(25)
-                .style(error_color)
+                .color(error_color)
         )
-        .push(Text::new(error_msg).size(15).style(error_color))
+        .push(Text::new(error_msg).size(15).color(error_color))
 }
 
 fn loading_message(msg_column: Column<GUIMessage>) -> Column<GUIMessage>

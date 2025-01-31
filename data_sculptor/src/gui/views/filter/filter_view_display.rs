@@ -1,9 +1,9 @@
 //! Module implementing the display functions for the [`FilterView`]
 
-use iced::{Alignment, Element, Length, theme};
+use iced::{Alignment, Element, Length};
 use iced::widget::{Button, Column, Container, Row, Scrollable, Space, text_input};
 use crate::gui::gui_message::GUIMessage;
-use crate::gui::gui_theme;
+use crate::gui::gui_style;
 use crate::gui::views::filter::filter_view_control::FilterView;
 use crate::gui::views::list::list_view_control::ListView;
 
@@ -16,7 +16,7 @@ impl FilterView
         let save_button = Button::new("Save and exit")
             .on_press(GUIMessage::ReturnToView(ListView::view_title()))
             .padding(10)
-            .style(theme::Button::custom(gui_theme::ButtonTheme));
+            .style(gui_style::ButtonStyle::style);
 
         // INPUT ROW
         let text_input = text_input(
@@ -31,17 +31,17 @@ impl FilterView
         let add_button = Button::new("Add filter")
             .on_press(GUIMessage::AddFilter)
             .padding(10)
-            .style(theme::Button::custom(gui_theme::ButtonTheme));
+            .style(gui_style::ButtonStyle::style);
 
         let input_row = Row::new()
-            .align_items(Alignment::Center)
+            .align_y(Alignment::Center)
             .spacing(20)
             .push(text_input)
             .push(add_button);
 
         let input_row_container = Container::new(input_row)
             .padding(20)
-            .style(gui_theme::container_bar_style());
+            .style(gui_style::container_bar_style);
 
         // FILTERS
         let filter_list = self.display_filter_list();
@@ -76,13 +76,13 @@ impl FilterView
 
             // FILTER BOX
             let delete_button = Button::new("X")
-                .style(theme::Button::custom(gui_theme::DeleteButtonTheme))
+                .style(gui_style::DeleteButtonStyle::style)
                 .padding([7, 10])
                 .width(Length::Fixed(30.0))
                 .on_press(GUIMessage::DeleteFilter(id.clone()));
 
             let filter_button = Button::new(filter.title.as_str())
-                .style(theme::Button::custom(gui_theme::FilterButtonTheme))
+                .style(gui_style::FilterButtonStyle::style)
                 .clip(true)
                 .padding(20)
                 .width(Length::Fixed(250.0))
@@ -102,8 +102,7 @@ impl FilterView
         Scrollable::new
             (
                 Container::new(filter_column)
-                    .width(Length::Fill)
-                    .center_x()
+                    .center_x(Length::Fill)
             )
             .into()
     }

@@ -1,6 +1,6 @@
 //! Module implementing the control functions for the [`FilterView`]
 
-use iced::{Command};
+use iced::{Task};
 use crate::gui::gui_message::GUIMessage;
 use crate::core::filters::filter::{FilterType, Filter, FilterID};
 use crate::core::filters::{expression_parser};
@@ -31,7 +31,7 @@ impl From<FilterType> for FilterView
 impl FilterView
 {
     // UPDATE
-    pub fn update(&mut self, message: GUIMessage) -> Command<GUIMessage>
+    pub fn update(&mut self, message: GUIMessage) -> Task<GUIMessage>
     {
         match message
         {
@@ -39,33 +39,33 @@ impl FilterView
             GUIMessage::FilterInputChanged(input) => {self.update_input(input)}
             GUIMessage::AddFilter => {self.add_filter()}
             GUIMessage::DeleteFilter(filter_id) => {self.delete_filter(filter_id)}
-            _ => {Command::none()}
+            _ => {Task::none()}
         }
     }
 
-    fn click_filter(&mut self, filter_id: FilterID) -> Command<GUIMessage>
+    fn click_filter(&mut self, filter_id: FilterID) -> Task<GUIMessage>
     {
         self.input_value = self.filters.get(&filter_id).unwrap().title.clone();
-        Command::none()
+        Task::none()
     }
 
-    fn delete_filter(&mut self, filter_id: FilterID) -> Command<GUIMessage>
+    fn delete_filter(&mut self, filter_id: FilterID) -> Task<GUIMessage>
     {
         self.filters.shift_remove(&filter_id);
-        Command::none()
+        Task::none()
     }
 
-    fn update_input(&mut self, input: String) -> Command<GUIMessage>
+    fn update_input(&mut self, input: String) -> Task<GUIMessage>
     {
         if input.len() < 500
         {
             self.input_value = input;
         }
 
-        Command::none()
+        Task::none()
     }
 
-    fn add_filter(&mut self) -> Command<GUIMessage>
+    fn add_filter(&mut self) -> Task<GUIMessage>
     {
         let parse_result = expression_parser::parse(&self.filter_type, self.input_value.as_str());
         if let Some(filter_expression) = parse_result
@@ -83,6 +83,6 @@ impl FilterView
             self.input_value.clear();
         }
 
-        Command::none()
+        Task::none()
     }
 }

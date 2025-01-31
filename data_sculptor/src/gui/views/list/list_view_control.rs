@@ -1,7 +1,7 @@
 //! Module implementing the control functions for the [`ListView`]
 
-use std::sync::{Arc, Mutex};
-use iced::{Command};
+use std::sync::{Mutex};
+use iced::{Task};
 use indexmap::IndexMap;
 use crate::core::data_manager::DataManager;
 use crate::core::filters::filter::{Filter, FilterID, FilterType};
@@ -45,7 +45,7 @@ impl Default for ListView
 impl ListView
 {
     // UPDATE
-    pub fn update(&mut self, message: GUIMessage, dm: &Arc<Mutex<DataManager>>) -> Command<GUIMessage>
+    pub fn update(&mut self, message: GUIMessage, dm: &Mutex<DataManager>) -> Task<GUIMessage>
     {
         if let Some(filter_view) = self.opened_filter_view.clone()
         {
@@ -67,12 +67,12 @@ impl ListView
                 GUIMessage::SaveFile => {self.save_file(dm)}
                 GUIMessage::FileSelected(path) => {self.file_selected(path, dm)}
                 GUIMessage::OpenFilterView(filter_type) => {self.open_filter_view(filter_type)}
-                _ => {Command::none()}
+                _ => {Task::none()}
             }
         }
     }
 
-    fn select_file(&mut self) -> Command<GUIMessage>
+    fn select_file(&mut self) -> Task<GUIMessage>
     {
         if let Some(file_path) = file_dialogs::pick_file()
         {
@@ -82,44 +82,44 @@ impl ListView
             // if it fails.
             self.loaded_valid_file = true;
 
-            Command::perform(async move { file_path }, GUIMessage::FileSelected)
-        } else { Command::none() }
+            Task::perform(async move { file_path }, GUIMessage::FileSelected)
+        } else { Task::none() }
     }
 
-    fn save_file(&mut self, dm: &Arc<Mutex<DataManager>>) -> Command<GUIMessage>
+    fn save_file(&mut self, dm: &Mutex<DataManager>) -> Task<GUIMessage>
     {
         if let Some(file_path) = file_dialogs::save_json_file()
         {
             data_writer::write_data_filtered(file_path, &dm.lock().unwrap().data, &self);
         }
-        Command::none()
+        Task::none()
     }
 
-    fn file_selected(&mut self, path: String, dm: &Arc<Mutex<DataManager>>) -> Command<GUIMessage>
+    fn file_selected(&mut self, path: String, dm: &Mutex<DataManager>) -> Task<GUIMessage>
     {
         self.loading_file = false;
 
         let mut unwrapped_dm = dm.lock().unwrap();
         (self.loaded_valid_file, self.load_error_msg) = unwrapped_dm.load_data(path.as_str());
 
-        Command::none()
+        Task::none()
     }
 
-    fn open_filter_view(&mut self, filter_type: FilterType) -> Command<GUIMessage>
+    fn open_filter_view(&mut self, filter_type: FilterType) -> Task<GUIMessage>
     {
         self.opened_filter_view = Some(filter_type);
-        Command::none()
+        Task::none()
     }
 
-    fn return_to_view(&mut self, view_name: &str) -> Command<GUIMessage>
+    fn return_to_view(&mut self, view_name: &str) -> Task<GUIMessage>
     {
         if view_name != ListView::view_title()
         {
-            return Command::none()
+            return Task::none()
         }
 
         self.opened_filter_view = None;
-        Command::none()
+        Task::none()
     }
 
     pub fn get_filters(&self, filter_type: &FilterType) -> &IndexMap<FilterID, Filter>

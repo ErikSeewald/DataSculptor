@@ -1,5 +1,6 @@
 //! Defines the [`GUIMessage`] enum
 
+use iced::window;
 use crate::core::filters::filter::{FilterID, FilterType};
 
 /// Enum holding all types of messages to be received and handled by the gui application.
@@ -22,4 +23,6 @@ pub enum GUIMessage
     FilterInputChanged(String),
     AddFilter,
     DeleteFilter(FilterID),
+
+    LatestWindowId(Option<window::Id>),
 }

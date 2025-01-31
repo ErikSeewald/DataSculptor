@@ -3,3 +3,4 @@
 pub mod data_loader;
 pub mod data_writer;
 pub mod file_dialogs;
+pub mod asset_handler;

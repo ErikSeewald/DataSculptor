@@ -1,9 +1,9 @@
 //! Module implementing the display functions for the [`MenuView`]
 
-use iced::{Element, Length, theme};
+use iced::{Element, Length};
 use iced::widget::{button, Column, Container, Row, Space, Text};
 use crate::gui::gui_message::GUIMessage;
-use crate::gui::gui_theme;
+use crate::gui::gui_style;
 use crate::gui::views::list::list_view_control::ListView;
 use crate::gui::views::menu::menu_view_control::MenuView;
 
@@ -44,7 +44,7 @@ impl MenuView
                     .push(Space::with_width(Length::FillPortion(1)))
             )
             .padding(20)
-            .style(gui_theme::container_bar_style());
+            .style(gui_style::container_bar_style);
 
         Column::new()
             .push(Space::with_height(Length::FillPortion(3)))
@@ -61,7 +61,7 @@ pub fn menu_button(title: String, on_press: GUIMessage) -> Element<'static, GUIM
         .padding(10)
         .width(Length::Fixed(180.0))
         .height(Length::Fixed(64.0))
-        .style(theme::Button::custom(gui_theme::ButtonTheme))
+        .style(gui_style::ButtonStyle::style)
         .into()
 }
 

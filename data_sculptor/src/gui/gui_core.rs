@@ -3,7 +3,7 @@
 //! It manages the iced application and, based on its current state,
 //! switches between displaying the different views of the 'views' module.
 
-use iced::{Application, Command, Element, Settings, Theme};
+use iced::{Task, Element, Theme};
 use std::sync::{Arc, Mutex};
 use iced::widget::Column;
 use crate::core::data_manager::DataManager;
@@ -11,12 +11,15 @@ use crate::gui::views::gui_view_type::GUIViewType;
 use crate::gui::gui_message::GUIMessage;
 use crate::gui::views::list::list_view_control::ListView;
 use crate::gui::views::menu::menu_view_control::MenuView;
+use crate::file_io::asset_handler;
 
 /// Initializes the iced application using an [`Arc`] of the [`DataManager`] that is shared
 /// between all submodules of data_sculptor.
-pub fn init(data_manager: Arc<Mutex<DataManager>>) -> iced::Result 
+pub fn init(data_manager: Arc<Mutex<DataManager>>) -> iced::Result
 {
-    MainGUI::run(Settings::with_flags(data_manager))
+    iced::application("Data Sculptor", MainGUI::update, MainGUI::view)
+        .theme(|_| Theme::Dark)
+        .run_with(| | MainGUI::new(data_manager))
 }
 
 /// Struct implementing the iced application. Also holds the shared [`DataManager`]
@@ -31,20 +34,15 @@ pub struct MainGUI
     pub menu_view: MenuView
 }
 
-impl Application for MainGUI
+impl MainGUI
 {
-    type Executor = iced::executor::Default;
-    type Message = GUIMessage;
-    type Theme = Theme;
-    type Flags = Arc<Mutex<DataManager>>;
-
-    /// Construct the iced applications and build all the default views and default
-    /// to display one of them.
-    fn new(flags: Self::Flags) -> (Self, Command<Self::Message>)
+    /// Constructs the iced applications, builds the views and displays the default view.
+    /// Returns the new MainGUI state and the initialization task.
+    fn new(data_manager: Arc<Mutex<DataManager>>) -> (Self, Task<GUIMessage>)
     {
         let instance = Self
             {
-                data_manager: flags,
+                data_manager,
                 cur_view: GUIViewType::MenuView,
 
                 // VIEWS
@@ -52,12 +50,10 @@ impl Application for MainGUI
                 menu_view: MenuView{}
             };
 
-        return (instance, Command::none());
+        return (instance, asset_handler::init_assets_task());
     }
 
-    fn title(&self) -> String {String::from("Data Sculptor")}
-
-    fn update(&mut self, message: Self::Message) -> Command<Self::Message>
+    fn update(&mut self, message: GUIMessage) -> Task<GUIMessage>
     {
         // RETURN TO MENU
         if let GUIMessage::ReturnToView(view_name) = message
@@ -85,11 +81,11 @@ impl Application for MainGUI
         {
             GUIViewType::ListView => {self.list_view.update(message, &self.data_manager)}
             GUIViewType::MenuView => {self.menu_view.update(message)}
-            _ => {Command::none()}
+            _ => {Task::none()}
         }
     }
 
-    fn view(&self) -> Element<Self::Message>
+    fn view(&self) -> Element<GUIMessage>
     {
         match self.cur_view
         {
@@ -98,6 +94,4 @@ impl Application for MainGUI
             _ => {Column::new().into()}
         }
     }
-
-    fn theme(&self) -> Self::Theme {Theme::Dark}
 }

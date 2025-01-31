@@ -1,6 +1,6 @@
 //! Module implementing the control functions for the [`MenuView`]
 
-use iced::{Command};
+use iced::{Task};
 use crate::gui::gui_message::GUIMessage;
 
 /// The main menu of the data_sculptor application.
@@ -13,11 +13,11 @@ pub struct MenuView
 impl MenuView
 {
     // UPDATE
-    pub fn update(&mut self, message: GUIMessage) -> Command<GUIMessage>
+    pub fn update(&mut self, message: GUIMessage) -> Task<GUIMessage>
     {
         match message
         {
-            _ => {Command::none()}
+            _ => {Task::none()}
         }
     }
 

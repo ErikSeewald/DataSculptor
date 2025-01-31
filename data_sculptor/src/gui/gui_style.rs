@@ -1,20 +1,28 @@
-//! Module defining the themes applied in the data_sculptor gui
+//! Module defining the styles applied in the data_sculptor gui
 
 use iced::{Border, Color, Shadow, Theme, Vector};
 use iced::Background;
 use iced::border::Radius;
-use iced::widget::button::{Appearance, StyleSheet};
-use iced::widget::container;
+use iced::widget::{button, container};
 
 // -----BUTTONS-----
-pub struct ButtonTheme;
-impl StyleSheet for ButtonTheme
+pub struct ButtonStyle;
+impl ButtonStyle
 {
-    type Style = Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance
+    pub fn style(_: &Theme, status: button::Status) -> button::Style
     {
-        Appearance
+        match status
+        {
+            button::Status::Active => {ButtonStyle::active()}
+            button::Status::Hovered => {ButtonStyle::hovered()}
+            button::Status::Pressed => {ButtonStyle::pressed()}
+            button::Status::Disabled => {Default::default()}
+        }
+    }
+
+    fn active() -> button::Style
+    {
+        button::Style
         {
             background: Some(Background::Color(Color::from_rgb(0.0, 0.6, 0.3))),
             text_color: Color::WHITE,
@@ -32,35 +40,45 @@ impl StyleSheet for ButtonTheme
             },
             ..Default::default()
         }
+
     }
 
-    fn hovered(&self, _style: &Self::Style) -> Appearance
+    fn hovered() -> button::Style
     {
-        Appearance
+        button::Style
         {
             background: Some(Background::Color(Color::from_rgb(0.0, 0.7, 0.35))),
-            ..self.active(_style)
+            ..ButtonStyle::active()
         }
     }
 
-    fn pressed(&self, _style: &Self::Style) -> Appearance
+    fn pressed() -> button::Style
     {
-        Appearance
+        button::Style
         {
             background: Some(Background::Color(Color::from_rgb(0.0, 0.8, 0.45))),
-            ..self.active(_style)
+            ..ButtonStyle::active()
         }
     }
 }
 
-pub struct FilterButtonTheme;
-impl StyleSheet for FilterButtonTheme
+pub struct FilterButtonStyle;
+impl FilterButtonStyle
 {
-    type Style = Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance
+    pub fn style(_: &Theme, status: button::Status) -> button::Style
     {
-        Appearance
+        match status
+        {
+            button::Status::Active => {FilterButtonStyle::active()}
+            button::Status::Hovered => {FilterButtonStyle::hovered()}
+            button::Status::Pressed => {FilterButtonStyle::pressed()}
+            button::Status::Disabled => {Default::default()}
+        }
+    }
+
+    fn active() -> button::Style
+    {
+        button::Style
         {
             background: Some(Background::Color(Color::from_rgb(0.0, 0.4, 0.2))),
             text_color: Color::WHITE,
@@ -80,33 +98,42 @@ impl StyleSheet for FilterButtonTheme
         }
     }
 
-    fn hovered(&self, _style: &Self::Style) -> Appearance
+    fn hovered() -> button::Style
     {
-        Appearance
+        button::Style
         {
             background: Some(Background::Color(Color::from_rgb(0.0, 0.5, 0.25))),
-            ..self.active(_style)
+            ..FilterButtonStyle::active()
         }
     }
 
-    fn pressed(&self, _style: &Self::Style) -> Appearance
+    fn pressed() -> button::Style
     {
-        Appearance
+        button::Style
         {
             background: Some(Background::Color(Color::from_rgb(0.0, 0.6, 0.35))),
-            ..self.active(_style)
+            ..FilterButtonStyle::active()
         }
     }
 }
 
-pub struct DeleteButtonTheme;
-impl StyleSheet for DeleteButtonTheme
+pub struct DeleteButtonStyle;
+impl DeleteButtonStyle
 {
-    type Style = Theme;
-
-    fn active(&self, _style: &Self::Style) -> Appearance
+    pub fn style(_: &Theme, status: button::Status) -> button::Style
     {
-        Appearance
+        match status
+        {
+            button::Status::Active => {DeleteButtonStyle::active()}
+            button::Status::Hovered => {DeleteButtonStyle::hovered()}
+            button::Status::Pressed => {DeleteButtonStyle::pressed()}
+            button::Status::Disabled => {Default::default()}
+        }
+    }
+
+    fn active() -> button::Style
+    {
+        button::Style
         {
             background: Some(Background::Color(Color::from_rgb(0.6, 0.25, 0.25))),
             text_color: Color::WHITE,
@@ -126,29 +153,29 @@ impl StyleSheet for DeleteButtonTheme
         }
     }
 
-    fn hovered(&self, _style: &Self::Style) -> Appearance
+    fn hovered() -> button::Style
     {
-        Appearance
+        button::Style
         {
             background: Some(Background::Color(Color::from_rgb(0.75, 0.25, 0.25))),
-            ..self.active(_style)
+            ..DeleteButtonStyle::active()
         }
     }
 
-    fn pressed(&self, _style: &Self::Style) -> Appearance
+    fn pressed() -> button::Style
     {
-        Appearance
+        button::Style
         {
             background: Some(Background::Color(Color::from_rgb(0.8, 0.25, 0.25))),
-            ..self.active(_style)
+            ..DeleteButtonStyle::active()
         }
     }
 }
 
 // -----CONTAINERS-----
-pub fn container_bar_style() -> container::Appearance
+pub fn container_bar_style(_: &Theme) -> container::Style
 {
-    container::Appearance
+    container::Style
     {
         background: Some(Background::Color(Color::from_rgb(0.2, 0.22, 0.23))),
         border: Default::default(),
