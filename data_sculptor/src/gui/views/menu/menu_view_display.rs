@@ -21,13 +21,9 @@ impl MenuView
                         GUIMessage::OpenView(ListView::view_title())
                     )
             )
-            .push(empty_menu_button())
-            .push(empty_menu_button())
             .spacing(50).into();
 
         let second_row: Element<GUIMessage> = Row::new()
-            .push(empty_menu_button())
-            .push(empty_menu_button())
             .push(empty_menu_button())
             .spacing(50).into();
 
